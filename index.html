@@ -17,10 +17,6 @@
   <meta property="og:description" content="building cool things • dark mode enthusiast • cutter • programmer">
   <meta property="og:image" content="https://kamyllan.social/assets/icon.png">
   <meta property="og:image:alt" content="kamyllan avatar">
-  <!-- Optional sizes if you have a 1200×630 image later:
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
-  -->
 
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="kamyllan — Meow Meow Motherfucker">
@@ -91,32 +87,52 @@
     #moodBackdrop.show{opacity:1;pointer-events:auto}
     #moodLock{margin-top:10px;color:var(--muted);font-size:12px;display:none}
     #moodLock.show{display:block}
-  
-/* === Code-Gate (Floating Button + Dialog) === */
-#z0{position:fixed;right:18px;bottom:66px;z-index:3;width:36px;height:36px;border-radius:50%;
-    display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,var(--accent,#5865f2),#3f49c6);
-    color:#fff;font-size:18px;cursor:pointer;box-shadow:0 8px 24px rgba(88,101,242,.35);border:1px solid rgba(255,255,255,.12);
-    transition:transform .08s ease,box-shadow .15s ease,opacity .2s ease}
-#z0:hover{transform:translateY(-1px);box-shadow:0 12px 28px rgba(88,101,242,.45)}
-#z0:active{transform:scale(.98)}
-#zB{position:fixed;inset:0;z-index:3;background:rgba(0,0,0,.35);backdrop-filter:blur(2px);opacity:0;pointer-events:none;transition:opacity .25s ease}
-#zB.show{opacity:1;pointer-events:auto}
-#zP{position:fixed;left:50%;top:0;transform:translate(-50%,-120vh);z-index:4;width:min(92vw,420px);
-    background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.10);
-    border-radius:16px;padding:16px 16px 18px;color:var(--fg,#fff);text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.45),inset 0 0 0 1px rgba(255,255,255,.02);backdrop-filter:blur(8px);pointer-events:none;opacity:0}
-#zP.show{pointer-events:auto;opacity:1;animation:dropIn 720ms cubic-bezier(.2,.8,.2,1) forwards}
-#zP.hide{pointer-events:none;animation:liftOut 260ms ease forwards}
-.zR{display:flex;gap:10px;align-items:center;justify-content:center;margin-top:12px}
-#zI{width:160px;padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:#1a1f28;color:#fff;font-size:16px;letter-spacing:2px;text-align:center}
-#zG{appearance:none;border:0;border-radius:10px;padding:10px 12px;background:#222734;color:#fff;cursor:pointer;transition:background .2s ease,transform .06s ease}
-#zG:hover{background:#283042}
-#zG:active{transform:scale(.98)}
-#zM{margin-top:8px;font-size:13px;color:#ff6166;min-height:1.1em}
 
-</style>
+    /* === Code-Gate (Floating Button + Dialog) === */
+    #z0{position:fixed;right:18px;bottom:66px;z-index:3;width:36px;height:36px;border-radius:50%;
+        display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,var(--accent,#5865f2),#3f49c6);
+        color:#fff;font-size:18px;cursor:pointer;box-shadow:0 8px 24px rgba(88,101,242,.35);border:1px solid rgba(255,255,255,.12);
+        transition:transform .08s ease,box-shadow .15s ease,opacity .2s ease}
+    #z0:hover{transform:translateY(-1px);box-shadow:0 12px 28px rgba(88,101,242,.45)}
+    #z0:active{transform:scale(.98)}
+    #zB{position:fixed;inset:0;z-index:3;background:rgba(0,0,0,.35);backdrop-filter:blur(2px);opacity:0;pointer-events:none;transition:opacity .25s ease}
+    #zB.show{opacity:1;pointer-events:auto}
+    #zP{position:fixed;left:50%;top:0;transform:translate(-50%,-120vh);z-index:4;width:min(92vw,420px);
+        background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.10);
+        border-radius:16px;padding:16px 16px 18px;color:var(--fg,#fff);text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.45),inset 0 0 0 1px rgba(255,255,255,.02);backdrop-filter:blur(8px);pointer-events:none;opacity:0}
+    #zP.show{pointer-events:auto;opacity:1;animation:dropIn 720ms cubic-bezier(.2,.8,.2,1) forwards}
+    #zP.hide{pointer-events:none;animation:liftOut 260ms ease forwards}
+    .zR{display:flex;gap:10px;align-items:center;justify-content:center;margin-top:12px}
+    #zI{width:160px;padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:#1a1f28;color:#fff;font-size:16px;letter-spacing:2px;text-align:center}
+    #zG{appearance:none;border:0;border-radius:10px;padding:10px 12px;background:#222734;color:#fff;cursor:pointer;transition:background .2s ease,transform .06s ease}
+    #zG:hover{background:#283042}
+    #zG:active{transform:scale(.98)}
+    #zM{margin-top:8px;font-size:13px;color:#ff6166;min-height:1.1em}
+
+    /* === Audio-reactive glow === */
+    :root{
+      --aglow-o: 0;   /* opacity */
+      --aglow-s: 1;   /* scale */
+      --aglow-x: 50%; /* hotspot X */
+      --aglow-y: 50%; /* hotspot Y */
+    }
+    #aGlow{
+      position:fixed; inset:-20vmax; z-index:0; pointer-events:none;
+      filter:blur(40px);
+      mix-blend-mode:screen;
+      opacity:var(--aglow-o,0);
+      transform:scale(var(--aglow-s,1));
+      background:
+        radial-gradient(36vmax 36vmax at var(--aglow-x,50%) var(--aglow-y,50%),
+          rgba(0,229,255,.22) 0%,
+          rgba(88,101,242,.20) 45%,
+          rgba(88,101,242,0) 70%);
+    }
+  </style>
 </head>
 <body>
   <canvas id="bg" aria-hidden="true"></canvas>
+  <div id="aGlow" aria-hidden="true"></div>
   <div id="cursorGlow" aria-hidden="true"></div>
 
   <div id="gate" role="button" tabindex="0" aria-label="">
@@ -195,6 +211,10 @@
     const moodTitleEl=document.getElementById('moodTitle')
     const moodScaleHint=document.getElementById('moodScaleHint')
     const langBtn=document.getElementById('langBtn')
+    const aGlow=document.getElementById('aGlow')
+    const root=document.documentElement
+    let glowO=0, glowS=1
+
     title.textContent="ThereIsNoGame - Gigi's song.mp3"
     audio.muted=false; audio.volume = parseFloat(vol.value || '0.1')
 
@@ -212,7 +232,41 @@
     window.addEventListener('resize',resizeCanvas);resizeCanvas()
     function initViz(){if(vizReady)return;audioCtx=new(window.AudioContext||window.webkitAudioContext)();analyser=audioCtx.createAnalyser();analyser.fftSize=256;analyser.smoothingTimeConstant=0.8;sourceNode=audioCtx.createMediaElementSource(audio);sourceNode.connect(analyser);analyser.connect(audioCtx.destination);vizReady=true;drawViz()}
     function resumeCtx(){if(!vizReady)initViz();if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume().catch(()=>{})}
-    function drawViz(){const bars=64;const data=new Uint8Array(analyser.frequencyBinCount);(function frame(){requestAnimationFrame(frame);analyser.getByteFrequencyData(data);const w=canvas.clientWidth,h=canvas.clientHeight;ctx.clearRect(0,0,w,h);const barW=w/bars;for(let i=0;i<bars;i++){const idx=Math.min(data.length-1,Math.floor(i*(data.length/bars))+2);const v=data[idx]/255;const barH=Math.max(2,v*(h-8));const x=i*barW,y=h-barH;const g=ctx.createLinearGradient(0,y,0,h);g.addColorStop(0,'#00e5ff');g.addColorStop(1,'#5865f2');ctx.fillStyle=g;const pad=Math.max(2,barW*.25);ctx.fillRect(Math.floor(x)+pad/2,y,Math.max(2,barW-pad),barH)}})()}
+
+    // UPDATED: draw bars + drive background glow
+    function drawViz(){
+      const bars=64;
+      const data=new Uint8Array(analyser.frequencyBinCount);
+      (function frame(){
+        requestAnimationFrame(frame);
+        analyser.getByteFrequencyData(data);
+
+        // Bars (same gradient as before)
+        const w=canvas.clientWidth,h=canvas.clientHeight;
+        ctx.clearRect(0,0,w,h);
+        const barW=w/bars;
+        for(let i=0;i<bars;i++){
+          const idx=Math.min(data.length-1,Math.floor(i*(data.length/bars))+2);
+          const v=data[idx]/255;
+          const barH=Math.max(2,v*(h-8));
+          const x=i*barW,y=h-barH;
+          const g=ctx.createLinearGradient(0,y,0,h);
+          g.addColorStop(0,'#00e5ff');
+          g.addColorStop(1,'#5865f2');
+          ctx.fillStyle=g;
+          const pad=Math.max(2,barW*.25);
+          ctx.fillRect(Math.floor(x)+pad/2,y,Math.max(2,barW-pad),barH);
+        }
+
+        // Energy → glow
+        let sum=0; for(let i=0;i<data.length;i++) sum+=data[i];
+        const energy = sum / (data.length*255);          // 0..1
+        glowO = glowO*0.85 + 0.15 * Math.min(0.9, energy*1.6);
+        glowS = glowS*0.85 + 0.15 * (1 + energy*0.8);
+        root.style.setProperty('--aglow-o', glowO.toFixed(3));
+        root.style.setProperty('--aglow-s', glowS.toFixed(3));
+      })();
+    }
 
     async function enterSite(){card.classList.remove('blurred');gate.classList.add('hidden');setTimeout(()=>gate.style.display='none',380);try{resumeCtx();await audio.play()}catch(e){audio.play().catch(()=>{})}}
     gate.addEventListener('click',enterSite)
@@ -239,7 +293,16 @@
     document.addEventListener('pointermove',e=>{tx=e.clientX-glow.offsetWidth/2;ty=e.clientY-glow.offsetHeight/2})
     document.addEventListener('pointerenter',()=>glow.style.opacity=.9)
     document.addEventListener('pointerleave',()=>glow.style.opacity=0)
-    ;(function follow(){gx+=(tx-gx)*0.15;gy+=(ty-gy)*0.15;glow.style.transform=`translate3d(${gx}px,${gy}px,0)`;requestAnimationFrame(follow)})()
+    ;(function follow(){
+      gx+=(tx-gx)*0.15; gy+=(ty-gy)*0.15;
+      glow.style.transform=`translate3d(${gx}px,${gy}px,0)`;
+      // steer audio glow center with cursor
+      const cx = Math.max(0, Math.min(window.innerWidth,  gx + (glow.offsetWidth/2)));
+      const cy = Math.max(0, Math.min(window.innerHeight, gy + (glow.offsetHeight/2)));
+      root.style.setProperty('--aglow-x', (cx/window.innerWidth*100).toFixed(2)+'%');
+      root.style.setProperty('--aglow-y', (cy/window.innerHeight*100).toFixed(2)+'%');
+      requestAnimationFrame(follow)
+    })()
 
     const clamp=(v,min,max)=>Math.max(min,Math.min(max,v))
     const moodToEmoji=v=>{if(v<=10)return'💀';if(v<=25)return'😭';if(v<=40)return'🙁';if(v<=60)return'😐';if(v<=80)return'🙂';if(v<=95)return'😄';return'🤩'}
@@ -257,43 +320,42 @@
     window.addEventListener('keydown',e=>{if(e.key==='Escape')closeMood()})
   </script>
 
-<!-- === Code Gate Trigger + Panel === -->
-<button id="z0" title="Code eingeben" aria-label="Code eingeben">🔐</button>
-<div id="zB"></div>
-<div id="zP" role="dialog" aria-modal="true" aria-labelledby="zT">
-  <div id="zT" style="font-weight:700;font-size:16px;">Zugangscode</div>
-  <div class="zR">
-    <input id="zI" type="password" inputmode="numeric" maxlength="6" pattern="\d{6}" placeholder="••••••" autocomplete="off" />
-    <button id="zG">Prüfen</button>
+  <!-- === Code Gate Trigger + Panel === -->
+  <button id="z0" title="Code eingeben" aria-label="Code eingeben">🔐</button>
+  <div id="zB"></div>
+  <div id="zP" role="dialog" aria-modal="true" aria-labelledby="zT">
+    <div id="zT" style="font-weight:700;font-size:16px;">Zugangscode</div>
+    <div class="zR">
+      <input id="zI" type="password" inputmode="numeric" maxlength="6" pattern="\d{6}" placeholder="••••••" autocomplete="off" />
+      <button id="zG">Prüfen</button>
+    </div>
+    <div id="zM" aria-live="polite"></div>
+    <div style="margin-top:6px;font-size:12px;color:var(--muted,#b7bcc5);">6-stelliger Code</div>
   </div>
-  <div id="zM" aria-live="polite"></div>
-  <div style="margin-top:6px;font-size:12px;color:var(--muted,#b7bcc5);">6-stelliger Code</div>
-</div>
 
-
-<script>
-(function(d){
-  var $=function(x){return d.getElementById(x)},
-      Z0=$('z0'), ZB=$('zB'), ZP=$('zP'), ZI=$('zI'), ZG=$('zG'), ZM=$('zM'),
-      R='background.html',
-      H=(['bmU','BR0D','WIFcbr','d5mdLW','D+dzK','LKrZ8','+0XuK','7eEtRo','Fd4='].join('')),
-      O=function(){ZB.classList.add('show');ZP.classList.remove('hide');void ZP.offsetWidth;ZP.classList.add('show'); ZM.textContent=''; ZI.value=''; setTimeout(function(){ZI.focus()},120)},
-      C=function(){ZB.classList.remove('show');ZP.classList.remove('show');ZP.classList.add('hide')},
-      X=function(b){for(var a='',u=new Uint8Array(b),i=0;i<u.length;i++)a+=String.fromCharCode(u[i]);return btoa(a)},
-      S=function(t){return crypto.subtle.digest('SHA-256', new TextEncoder().encode(t)).then(X)},
-      F=function(){var v=(ZI.value||'').trim(); if(!/^\d{6}$/.test(v)){ZM.textContent='Bitte 6 Ziffern';return}
-        ZG.disabled=true; ZI.disabled=true; ZM.textContent='…';
-        S(v).then(function(h){ if(h===H){ ZM.style.color='#78ff9b'; ZM.textContent='✔️ Erfolg'; setTimeout(function(){location.href=R},600) }
-          else{ ZM.style.color='#ff6166'; ZM.textContent='Falscher Code'; ZG.disabled=false; ZI.disabled=false; ZI.focus(); } })
-        .catch(function(){ ZM.style.color='#ff6166'; ZM.textContent='Fehler'; ZG.disabled=false; ZI.disabled=false; });
-      };
-  Z0.addEventListener('click', function(){ZP.classList.contains('show')?C():O()});
-  ZB.addEventListener('click', C);
-  d.addEventListener('keydown', function(e){ if(e.key==='Escape') C(); });
-  ZG.addEventListener('click', F);
-  ZI.addEventListener('keydown', function(e){ if(e.key==='Enter') F(); });
-})(document);
-</script>
+  <script>
+  (function(d){
+    var $=function(x){return d.getElementById(x)},
+        Z0=$('z0'), ZB=$('zB'), ZP=$('zP'), ZI=$('zI'), ZG=$('zG'), ZM=$('zM'),
+        R='background.html',
+        H=(['bmU','BR0D','WIFcbr','d5mdLW','D+dzK','LKrZ8','+0XuK','7eEtRo','Fd4='].join('')),
+        O=function(){ZB.classList.add('show');ZP.classList.remove('hide');void ZP.offsetWidth;ZP.classList.add('show'); ZM.textContent=''; ZI.value=''; setTimeout(function(){ZI.focus()},120)},
+        C=function(){ZB.classList.remove('show');ZP.classList.remove('show');ZP.classList.add('hide')},
+        X=function(b){for(var a='',u=new Uint8Array(b),i=0;i<u.length;i++)a+=String.fromCharCode(u[i]);return btoa(a)},
+        S=function(t){return crypto.subtle.digest('SHA-256', new TextEncoder().encode(t)).then(X)},
+        F=function(){var v=(ZI.value||'').trim(); if(!/^\d{6}$/.test(v)){ZM.textContent='Bitte 6 Ziffern';return}
+          ZG.disabled=true; ZI.disabled=true; ZM.textContent='…';
+          S(v).then(function(h){ if(h===H){ ZM.style.color='#78ff9b'; ZM.textContent='✔️ Erfolg'; setTimeout(function(){location.href=R},600) }
+            else{ ZM.style.color='#ff6166'; ZM.textContent='Falscher Code'; ZG.disabled=false; ZI.disabled=false; ZI.focus(); } })
+          .catch(function(){ ZM.style.color='#ff6166'; ZM.textContent='Fehler'; ZG.disabled=false; ZI.disabled=false; });
+        };
+    Z0.addEventListener('click', function(){ZP.classList.contains('show')?C():O()});
+    ZB.addEventListener('click', C);
+    d.addEventListener('keydown', function(e){ if(e.key==='Escape') C(); });
+    ZG.addEventListener('click', F);
+    ZI.addEventListener('keydown', function(e){ if(e.key==='Enter') F(); });
+  })(document);
+  </script>
 
 </body>
 </html>
