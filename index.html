@@ -85,7 +85,7 @@
     .moodBadge{min-width:52px;padding:8px 10px;border-radius:10px;background:#222734;border:1px solid rgba(255,255,255,.08);color:#fff;font-weight:600}
     #moodBackdrop{position:fixed;inset:0;z-index:3;background:rgba(0,0,0,.35);backdrop-filter:blur(2px);opacity:0;pointer-events:none;transition:opacity .25s ease}
     #moodBackdrop.show{opacity:1;pointer-events:auto}
-    #moodLock{margin-top:10px;color:var(--muted);font-size:12px;display:none}
+    #moodLock{margin-top:10px;color:#666;display:none}
     #moodLock.show{display:block}
 
     /* === Code-Gate (Floating Button + Dialog) === */
@@ -109,37 +109,62 @@
     #zG:active{transform:scale(.98)}
     #zM{margin-top:8px;font-size:13px;color:#ff6166;min-height:1.1em}
 
-    /* === Audio-reactive side glows === */
+    /* === Audio-reactive edge glows (top/right/bottom/left) === */
     :root{
-      --aglowL-o: 0; --aglowL-s: 1;
-      --aglowR-o: 0; --aglowR-s: 1;
+      --eg-top-o:0; --eg-right-o:0; --eg-bottom-o:0; --eg-left-o:0;
+      --eg-top-s:1; --eg-right-s:1; --eg-bottom-s:1; --eg-left-s:1;
     }
-    .aGlow{
-      position:fixed; top:-20vmax; bottom:-20vmax; z-index:0; pointer-events:none;
-      filter:blur(50px); mix-blend-mode:screen;
+    .edgeGlow{
+      position:fixed; z-index:0; pointer-events:none; mix-blend-mode:screen;
+      filter:blur(50px);
     }
-    #aGlowL{
-      left:-25vmax; right:50%;
-      opacity:var(--aglowL-o,0); transform:scale(var(--aglowL-s,1));
-      background:radial-gradient(45vmax 80vh at 0% 50%,
+    /* Top: treble */
+    #egTop{
+      left:-8vw; right:-8vw; top:-22vmin; height:36vmin;
+      opacity:var(--eg-top-o); transform:scaleY(var(--eg-top-s));
+      background:linear-gradient(to bottom,
         rgba(0,229,255,.22) 0%,
         rgba(88,101,242,.20) 45%,
-        rgba(88,101,242,0) 70%);
+        rgba(88,101,242,0) 75%);
     }
-    #aGlowR{
-      left:50%; right:-25vmax;
-      opacity:var(--aglowR-o,0); transform:scale(var(--aglowR-s,1));
-      background:radial-gradient(45vmax 80vh at 100% 50%,
+    /* Bottom: bass */
+    #egBottom{
+      left:-8vw; right:-8vw; bottom:-22vmin; height:36vmin;
+      opacity:var(--eg-bottom-o); transform:scaleY(var(--eg-bottom-s));
+      background:linear-gradient(to top,
         rgba(0,229,255,.22) 0%,
         rgba(88,101,242,.20) 45%,
-        rgba(88,101,242,0) 70%);
+        rgba(88,101,242,0) 75%);
+    }
+    /* Left: mids */
+    #egLeft{
+      top:-12vh; bottom:-12vh; left:-22vmin; width:36vmin;
+      opacity:var(--eg-left-o); transform:scaleX(var(--eg-left-s));
+      background:linear-gradient(to right,
+        rgba(0,229,255,.22) 0%,
+        rgba(88,101,242,.20) 45%,
+        rgba(88,101,242,0) 75%);
+    }
+    /* Right: mids */
+    #egRight{
+      top:-12vh; bottom:-12vh; right:-22vmin; width:36vmin;
+      opacity:var(--eg-right-o); transform:scaleX(var(--eg-right-s));
+      background:linear-gradient(to left,
+        rgba(0,229,255,.22) 0%,
+        rgba(88,101,242,.20) 45%,
+        rgba(88,101,242,0) 75%);
     }
   </style>
 </head>
 <body>
   <canvas id="bg" aria-hidden="true"></canvas>
-  <div id="aGlowL" class="aGlow" aria-hidden="true"></div>
-  <div id="aGlowR" class="aGlow" aria-hidden="true"></div>
+
+  <!-- NEW: edge glows -->
+  <div id="egTop" class="edgeGlow" aria-hidden="true"></div>
+  <div id="egRight" class="edgeGlow" aria-hidden="true"></div>
+  <div id="egBottom" class="edgeGlow" aria-hidden="true"></div>
+  <div id="egLeft" class="edgeGlow" aria-hidden="true"></div>
+
   <div id="cursorGlow" aria-hidden="true"></div>
 
   <div id="gate" role="button" tabindex="0" aria-label="">
@@ -219,9 +244,9 @@
     const moodScaleHint=document.getElementById('moodScaleHint')
     const langBtn=document.getElementById('langBtn')
 
-    // NEW: glow elements + smoothed values
+    // Edge glow vars
     const root=document.documentElement
-    let lO=0, rO=0, lS=1, rS=1
+    let oTop=0,oRight=0,oBottom=0,oLeft=0, sTop=1,sRight=1,sBottom=1,sLeft=1
 
     title.textContent="ThereIsNoGame - Gigi's song.mp3"
     audio.muted=false; audio.volume = parseFloat(vol.value || '0.1')
@@ -241,7 +266,7 @@
     function initViz(){if(vizReady)return;audioCtx=new(window.AudioContext||window.webkitAudioContext)();analyser=audioCtx.createAnalyser();analyser.fftSize=256;analyser.smoothingTimeConstant=0.8;sourceNode=audioCtx.createMediaElementSource(audio);sourceNode.connect(analyser);analyser.connect(audioCtx.destination);vizReady=true;drawViz()}
     function resumeCtx(){if(!vizReady)initViz();if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume().catch(()=>{})}
 
-    // UPDATED: draw bars + compute separate bass/treble energies for side glows
+    // Visualizer + edge glow energies
     function drawViz(){
       const bars=64;
       const data=new Uint8Array(analyser.frequencyBinCount);
@@ -266,23 +291,40 @@
           ctx.fillRect(Math.floor(x)+pad/2,y,Math.max(2,barW-pad),barH);
         }
 
-        // Energies: bass (left 20%) & treble (right 20%)
-        const n=data.length, cut=Math.max(4,Math.floor(n*0.2));
-        let bass=0, treble=0;
-        for(let i=0;i<cut;i++) bass+=data[i];
-        for(let i=n-cut;i<n;i++) treble+=data[i];
-        bass /= (cut*255); treble /= (cut*255);
+        // Energies: bass (lowest 15%), mids (35–65%), treble (top 15%)
+        const n=data.length;
+        const lowW=Math.max(4,Math.floor(n*0.15));
+        const highW=Math.max(4,Math.floor(n*0.15));
+        const midA=Math.floor(n*0.35), midB=Math.floor(n*0.65);
+        let bass=0, mid=0, treb=0;
+        for(let i=0;i<lowW;i++) bass+=data[i];
+        for(let i=midA;i<midB;i++) mid+=data[i];
+        for(let i=n-highW;i<n;i++) treb+=data[i];
+        bass/= (lowW*255);
+        mid /= ((midB-midA)*255);
+        treb/= (highW*255);
 
         // Smooth + map to opacity/scale
-        lO = lO*0.85 + 0.15 * Math.min(0.9, bass*1.7);
-        rO = rO*0.85 + 0.15 * Math.min(0.9, treble*1.7);
-        lS = lS*0.85 + 0.15 * (1 + bass*0.9);
-        rS = rS*0.85 + 0.15 * (1 + treble*0.9);
+        const s=0.85, a=1-s;
+        oBottom = s*oBottom + a*Math.min(0.9, bass*1.7);
+        sBottom = s*sBottom + a*(1 + bass*0.8);
 
-        root.style.setProperty('--aglowL-o', lO.toFixed(3));
-        root.style.setProperty('--aglowR-o', rO.toFixed(3));
-        root.style.setProperty('--aglowL-s', lS.toFixed(3));
-        root.style.setProperty('--aglowR-s', rS.toFixed(3));
+        oLeft   = s*oLeft   + a*Math.min(0.8, mid*1.5);
+        sLeft   = s*sLeft   + a*(1 + mid*0.6);
+        oRight  = s*oRight  + a*Math.min(0.8, mid*1.5);
+        sRight  = s*sRight  + a*(1 + mid*0.6);
+
+        oTop    = s*oTop    + a*Math.min(0.7, treb*1.4);
+        sTop    = s*sTop    + a*(1 + treb*0.5);
+
+        root.style.setProperty('--eg-bottom-o', oBottom.toFixed(3));
+        root.style.setProperty('--eg-bottom-s', sBottom.toFixed(3));
+        root.style.setProperty('--eg-left-o',   oLeft.toFixed(3));
+        root.style.setProperty('--eg-left-s',   sLeft.toFixed(3));
+        root.style.setProperty('--eg-right-o',  oRight.toFixed(3));
+        root.style.setProperty('--eg-right-s',  sRight.toFixed(3));
+        root.style.setProperty('--eg-top-o',    oTop.toFixed(3));
+        root.style.setProperty('--eg-top-s',    sTop.toFixed(3));
       })();
     }
 
