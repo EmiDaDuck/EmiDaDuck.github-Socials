@@ -109,30 +109,37 @@
     #zG:active{transform:scale(.98)}
     #zM{margin-top:8px;font-size:13px;color:#ff6166;min-height:1.1em}
 
-    /* === Audio-reactive glow === */
+    /* === Audio-reactive side glows === */
     :root{
-      --aglow-o: 0;   /* opacity */
-      --aglow-s: 1;   /* scale */
-      --aglow-x: 50%; /* hotspot X */
-      --aglow-y: 50%; /* hotspot Y */
+      --aglowL-o: 0; --aglowL-s: 1;
+      --aglowR-o: 0; --aglowR-s: 1;
     }
-    #aGlow{
-      position:fixed; inset:-20vmax; z-index:0; pointer-events:none;
-      filter:blur(40px);
-      mix-blend-mode:screen;
-      opacity:var(--aglow-o,0);
-      transform:scale(var(--aglow-s,1));
-      background:
-        radial-gradient(36vmax 36vmax at var(--aglow-x,50%) var(--aglow-y,50%),
-          rgba(0,229,255,.22) 0%,
-          rgba(88,101,242,.20) 45%,
-          rgba(88,101,242,0) 70%);
+    .aGlow{
+      position:fixed; top:-20vmax; bottom:-20vmax; z-index:0; pointer-events:none;
+      filter:blur(50px); mix-blend-mode:screen;
+    }
+    #aGlowL{
+      left:-25vmax; right:50%;
+      opacity:var(--aglowL-o,0); transform:scale(var(--aglowL-s,1));
+      background:radial-gradient(45vmax 80vh at 0% 50%,
+        rgba(0,229,255,.22) 0%,
+        rgba(88,101,242,.20) 45%,
+        rgba(88,101,242,0) 70%);
+    }
+    #aGlowR{
+      left:50%; right:-25vmax;
+      opacity:var(--aglowR-o,0); transform:scale(var(--aglowR-s,1));
+      background:radial-gradient(45vmax 80vh at 100% 50%,
+        rgba(0,229,255,.22) 0%,
+        rgba(88,101,242,.20) 45%,
+        rgba(88,101,242,0) 70%);
     }
   </style>
 </head>
 <body>
   <canvas id="bg" aria-hidden="true"></canvas>
-  <div id="aGlow" aria-hidden="true"></div>
+  <div id="aGlowL" class="aGlow" aria-hidden="true"></div>
+  <div id="aGlowR" class="aGlow" aria-hidden="true"></div>
   <div id="cursorGlow" aria-hidden="true"></div>
 
   <div id="gate" role="button" tabindex="0" aria-label="">
@@ -211,9 +218,10 @@
     const moodTitleEl=document.getElementById('moodTitle')
     const moodScaleHint=document.getElementById('moodScaleHint')
     const langBtn=document.getElementById('langBtn')
-    const aGlow=document.getElementById('aGlow')
+
+    // NEW: glow elements + smoothed values
     const root=document.documentElement
-    let glowO=0, glowS=1
+    let lO=0, rO=0, lS=1, rS=1
 
     title.textContent="ThereIsNoGame - Gigi's song.mp3"
     audio.muted=false; audio.volume = parseFloat(vol.value || '0.1')
@@ -233,7 +241,7 @@
     function initViz(){if(vizReady)return;audioCtx=new(window.AudioContext||window.webkitAudioContext)();analyser=audioCtx.createAnalyser();analyser.fftSize=256;analyser.smoothingTimeConstant=0.8;sourceNode=audioCtx.createMediaElementSource(audio);sourceNode.connect(analyser);analyser.connect(audioCtx.destination);vizReady=true;drawViz()}
     function resumeCtx(){if(!vizReady)initViz();if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume().catch(()=>{})}
 
-    // UPDATED: draw bars + drive background glow
+    // UPDATED: draw bars + compute separate bass/treble energies for side glows
     function drawViz(){
       const bars=64;
       const data=new Uint8Array(analyser.frequencyBinCount);
@@ -241,7 +249,7 @@
         requestAnimationFrame(frame);
         analyser.getByteFrequencyData(data);
 
-        // Bars (same gradient as before)
+        // Bars
         const w=canvas.clientWidth,h=canvas.clientHeight;
         ctx.clearRect(0,0,w,h);
         const barW=w/bars;
@@ -258,13 +266,23 @@
           ctx.fillRect(Math.floor(x)+pad/2,y,Math.max(2,barW-pad),barH);
         }
 
-        // Energy → glow
-        let sum=0; for(let i=0;i<data.length;i++) sum+=data[i];
-        const energy = sum / (data.length*255);          // 0..1
-        glowO = glowO*0.85 + 0.15 * Math.min(0.9, energy*1.6);
-        glowS = glowS*0.85 + 0.15 * (1 + energy*0.8);
-        root.style.setProperty('--aglow-o', glowO.toFixed(3));
-        root.style.setProperty('--aglow-s', glowS.toFixed(3));
+        // Energies: bass (left 20%) & treble (right 20%)
+        const n=data.length, cut=Math.max(4,Math.floor(n*0.2));
+        let bass=0, treble=0;
+        for(let i=0;i<cut;i++) bass+=data[i];
+        for(let i=n-cut;i<n;i++) treble+=data[i];
+        bass /= (cut*255); treble /= (cut*255);
+
+        // Smooth + map to opacity/scale
+        lO = lO*0.85 + 0.15 * Math.min(0.9, bass*1.7);
+        rO = rO*0.85 + 0.15 * Math.min(0.9, treble*1.7);
+        lS = lS*0.85 + 0.15 * (1 + bass*0.9);
+        rS = rS*0.85 + 0.15 * (1 + treble*0.9);
+
+        root.style.setProperty('--aglowL-o', lO.toFixed(3));
+        root.style.setProperty('--aglowR-o', rO.toFixed(3));
+        root.style.setProperty('--aglowL-s', lS.toFixed(3));
+        root.style.setProperty('--aglowR-s', rS.toFixed(3));
       })();
     }
 
@@ -272,7 +290,6 @@
     gate.addEventListener('click',enterSite)
     gate.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();enterSite()}})
     toggle.addEventListener('click',()=>{if(audio.paused){resumeCtx();audio.play().catch(()=>{})}else{audio.muted=!audio.muted}toggle.textContent=(audio.muted||audio.paused)?'🔇':'🔊';toggle.setAttribute('aria-pressed',String(!audio.muted))})
-    // default fallback is now 0.1 too
     vol.addEventListener('input',e=>{audio.volume=parseFloat(e.target.value||'0.1')})
     audio.addEventListener('play',resumeCtx,{once:true})
 
@@ -293,16 +310,7 @@
     document.addEventListener('pointermove',e=>{tx=e.clientX-glow.offsetWidth/2;ty=e.clientY-glow.offsetHeight/2})
     document.addEventListener('pointerenter',()=>glow.style.opacity=.9)
     document.addEventListener('pointerleave',()=>glow.style.opacity=0)
-    ;(function follow(){
-      gx+=(tx-gx)*0.15; gy+=(ty-gy)*0.15;
-      glow.style.transform=`translate3d(${gx}px,${gy}px,0)`;
-      // steer audio glow center with cursor
-      const cx = Math.max(0, Math.min(window.innerWidth,  gx + (glow.offsetWidth/2)));
-      const cy = Math.max(0, Math.min(window.innerHeight, gy + (glow.offsetHeight/2)));
-      root.style.setProperty('--aglow-x', (cx/window.innerWidth*100).toFixed(2)+'%');
-      root.style.setProperty('--aglow-y', (cy/window.innerHeight*100).toFixed(2)+'%');
-      requestAnimationFrame(follow)
-    })()
+    ;(function follow(){gx+=(tx-gx)*0.15;gy+=(ty-gy)*0.15;glow.style.transform=`translate3d(${gx}px,${gy}px,0)`;requestAnimationFrame(follow)})()
 
     const clamp=(v,min,max)=>Math.max(min,Math.min(max,v))
     const moodToEmoji=v=>{if(v<=10)return'💀';if(v<=25)return'😭';if(v<=40)return'🙁';if(v<=60)return'😐';if(v<=80)return'🙂';if(v<=95)return'😄';return'🤩'}
