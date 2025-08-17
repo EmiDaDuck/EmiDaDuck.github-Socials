@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Meow Meow Motherfucker</title>
 
-  <!-- Social/Embed (Open Graph & Twitter) -->
   <link rel="canonical" href="https://kamyllan.social/">
   <meta name="description" content="building cool things • dark mode enthusiast • cutter • programmer">
   <meta name="theme-color" content="#0f1115">
@@ -161,7 +160,6 @@
 <body>
   <canvas id="bg" aria-hidden="true"></canvas>
 
-  <!-- NEW: edge glows -->
   <div id="egTop" class="edgeGlow" aria-hidden="true"></div>
   <div id="egRight" class="edgeGlow" aria-hidden="true"></div>
   <div id="egBottom" class="edgeGlow" aria-hidden="true"></div>
@@ -224,10 +222,8 @@
   <audio id="bgm" src="assets/ThereIsNoGame - Gigi's song.mp3" preload="auto" loop playsinline crossorigin="anonymous"></audio>
 
 <script>
-  // Jahr im Footer
   document.getElementById('yr').textContent = new Date().getFullYear()
 
-  // Audio / UI Referenzen
   const audio = document.getElementById('bgm')
   const toggle = document.getElementById('toggle')
   const vol = document.getElementById('vol')
@@ -249,16 +245,13 @@
   const moodScaleHint = document.getElementById('moodScaleHint')
   const langBtn = document.getElementById('langBtn')
 
-  // Edge glow Variablen (für den randbasierten Visualizer)
   const root = document.documentElement
   let oTop=0,oRight=0,oBottom=0,oLeft=0, sTop=1,sRight=1,sBottom=1,sLeft=1
 
-  // Now Playing
   title.textContent = "ThereIsNoGame - Gigi's song.mp3"
   audio.muted = false
   audio.volume = parseFloat(vol.value || '0.1')
 
-  // i18n
   const i18n = {
     en:{gateTitle:"Click to enter",gateHint:"Press <b>Enter</b> or <b>Space</b>",otherProfile:"Other Profile",npLabel:"Now playing:",moodTitle:"Mood Meter",locked:"Locked",scaleAria:"Mood from 0 to 100",scaleHint:"0 = worst • 100 = best",nubLabel:"Open mood meter",gateAria:"Click to enter and start music",langLabel:"EN",langTitle:"Change language"},
     de:{gateTitle:"Klicken zum Starten",gateHint:"Drücke <b>Enter</b> oder <b>Leertaste</b>",otherProfile:"Andere Seite",npLabel:"Läuft gerade:",moodTitle:"Stimmungsmeter",locked:"Gesperrt",scaleAria:"Stimmung von 0 bis 100",scaleHint:"0 = schlimm • 100 = perfekt",nubLabel:"Stimmung öffnen",gateAria:"Klicken zum Starten und Musik abspielen",langLabel:"DE",langTitle:"Sprache wechseln"}
@@ -288,7 +281,6 @@
   applyLang((localStorage.getItem('site_lang')||document.documentElement.lang||'de').toLowerCase())
   langBtn.addEventListener('click',toggleLang)
 
-  // Canvas-Visualizer (Balken) + AudioContext
   const canvas = document.getElementById('viz')
   const ctx = canvas.getContext('2d')
   const DPR = Math.max(1, window.devicePixelRatio||1)
@@ -319,7 +311,6 @@
     if(audioCtx && audioCtx.state==='suspended') audioCtx.resume().catch(()=>{})
   }
 
-  // Visualizer + Edge-Glow-Reaktionen
   function drawViz(){
     const bars=64
     const data=new Uint8Array(analyser.frequencyBinCount)
@@ -327,7 +318,6 @@
       requestAnimationFrame(frame)
       analyser.getByteFrequencyData(data)
 
-      // Bars zeichnen
       const w=canvas.clientWidth, h=canvas.clientHeight
       ctx.clearRect(0,0,w,h)
       const barW=w/bars
@@ -344,7 +334,6 @@
         ctx.fillRect(Math.floor(x)+pad/2, y, Math.max(2,barW-pad), barH)
       }
 
-      // Energie aufteilen: Bass / Mid / Treble
       const n=data.length
       const lowW=Math.max(4,Math.floor(n*0.15))
       const highW=Math.max(4,Math.floor(n*0.15))
@@ -357,7 +346,6 @@
       mid /= ((midB-midA)*255)
       treb/= (highW*255)
 
-      // ~35% stärkeres Mapping auf Opacity/Scale der Ränder
       const s = 0.85, a = 1 - s
       oBottom = s*oBottom + a*Math.min(1.00, bass*2.30)
       oLeft   = s*oLeft   + a*Math.min(0.95, mid*2.05)
@@ -380,7 +368,6 @@
     })()
   }
 
-  // Gate / Audio-Steuerung
   async function enterSite(){
     card.classList.remove('blurred')
     gate.classList.add('hidden')
@@ -446,7 +433,6 @@
   }
   ;(function loop(){ step(); drawWeb(); requestAnimationFrame(loop) })()
 
-  // Cursor Glow
   const glow=document.getElementById('cursorGlow')
   let gx=-9999,gy=-9999,tx=gx,ty=gy
   document.addEventListener('pointermove',e=>{ tx=e.clientX-glow.offsetWidth/2; ty=e.clientY-glow.offsetHeight/2 })
@@ -510,10 +496,6 @@
   moodBackdrop.addEventListener('click',closeMood)
   window.addEventListener('keydown',e=>{ if(e.key==='Escape') closeMood() })
 
-  /* ============================
-     Easter Egg: Avatar 5x klick
-     => verstecktes Code-Panel öffnen
-     ============================ */
   ;(function(){
     var avatar = document.querySelector('.avatar')
     if(!avatar) return
@@ -521,13 +503,12 @@
     function reset(){ taps=0; if(timer){ clearTimeout(timer); timer=null } }
     avatar.addEventListener('click', function(){
       taps++
-      if(!timer) timer = setTimeout(reset, 2000) // 2s Fenster
+      if(!timer) timer = setTimeout(reset, 2000)
       if(taps >= 5){
         reset()
-        var trigger = document.getElementById('z0') // unsichtbarer Button
+        var trigger = document.getElementById('z0')
         if(trigger) trigger.click()
         else {
-          // Fallback: Panel direkt öffnen, falls Scriptreihenfolge anders
           var ZB=document.getElementById('zB'), ZP=document.getElementById('zP')
           if(ZB && ZP){
             ZB.classList.add('show')
@@ -539,7 +520,6 @@
   })()
 </script>
 
-  <!-- === Code Gate Trigger + Panel === -->
   <div id="zB"></div>
    <div id="zP" role="dialog" aria-modal="true" aria-labelledby="zT">
     <div id="zT" style="font-weight:700;font-size:16px;">Zugangscode</div>
