@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Meow Meow Motherfucker</title>
+
+  <!-- Social/Embed (Open Graph & Twitter) -->
+  <link rel="canonical" href="https://kamyllan.social/">
+  <meta name="description" content="building cool things • dark mode enthusiast • cutter • programmer">
+  <meta name="theme-color" content="#0f1115">
+
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="de_DE">
+  <meta property="og:url" content="https://kamyllan.social/">
+  <meta property="og:title" content="kamyllan — Meow Meow Motherfucker">
+  <meta property="og:description" content="building cool things • dark mode enthusiast • cutter • programmer">
+  <meta property="og:image" content="https://kamyllan.social/assets/icon.png">
+  <meta property="og:image:alt" content="kamyllan avatar">
+  <!-- Optional sizes if you have a 1200×630 image later:
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  -->
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="kamyllan — Meow Meow Motherfucker">
+  <meta name="twitter:description" content="building cool things • dark mode enthusiast • cutter • programmer">
+  <meta name="twitter:image" content="https://kamyllan.social/assets/icon.png">
+
+  <!-- Preloads -->
+  <link rel="preload" href="assets/icon.png" as="image" fetchpriority="high">
+  <link rel="preload" href="assets/99ZED%20x%20SALIVA%20GREY%20-%20SELF%20SABOTAGE%20(prod.%2099ZED).mp3" as="fetch" type="audio/mpeg" crossorigin="anonymous">
+   
+  <style>
+    :root{--fg:#fff;--muted:#b7bcc5;--accent:#5865f2;--cyan:#00e5ff;--bg:#0f1115}
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;color:var(--fg);background:var(--bg);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,"Noto Sans","Helvetica Neue",sans-serif}
+    #bg{position:fixed;inset:0;z-index:0;width:100%;height:100%;display:block;pointer-events:none}
+    #cursorGlow{position:fixed;left:0;top:0;width:260px;height:260px;border-radius:50%;pointer-events:none;z-index:0;filter:blur(14px);background:radial-gradient(circle at 50% 50%,rgba(0,229,255,.18) 0%,rgba(88,101,242,.12) 40%,rgba(88,101,242,0) 70%);mix-blend-mode:screen;opacity:.9;transform:translate3d(-9999px,-9999px,0)}
+    body::before{content:"";position:fixed;inset:-15vh -15vw;z-index:-1;filter:blur(30px);background:radial-gradient(40vw 40vh at 15% 20%,rgba(88,101,242,.10),transparent 60%),radial-gradient(35vw 35vh at 80% 15%,rgba(0,229,255,.10),transparent 60%),radial-gradient(50vw 45vh at 60% 80%,rgba(255,0,128,.08),transparent 60%);animation:float 18s ease-in-out infinite alternate}
+    @keyframes float{to{transform:translate3d(2vw,-2vh,0) scale(1.02)}}
+    .wrap{min-height:100%;display:grid;place-items:center;padding:40px 16px;position:relative;z-index:1}
+    .card{width:100%;max-width:760px;text-align:center;padding:32px;border-radius:18px;background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.07);backdrop-filter:blur(6px);box-shadow:0 10px 30px rgba(0,0,0,.35),inset 0 0 0 1px rgba(255,255,255,.02);transition:filter .6s ease,transform .6s ease}
+    .blurred{filter:blur(12px) brightness(.92);transform:scale(1.01)}
+    .avatarWrap{position:relative;width:148px;height:148px;margin:6px auto 16px;border-radius:50%}
+    .avatar{position:relative;z-index:2;width:100%;height:100%;border-radius:50%;object-fit:cover;box-shadow:inset 0 0 26px rgba(0,229,255,.18),inset 0 0 36px rgba(88,101,242,.18),0 0 0 3px rgba(255,255,255,.04),0 0 40px rgba(88,101,242,.20)}
+    .avatarWrap::after{content:"";position:absolute;inset:-10px;border-radius:50%;background:radial-gradient(closest-side,rgba(88,101,242,.22),rgba(0,0,0,0) 70%);filter:blur(14px);z-index:0;pointer-events:none}
+    .avatarWrap::before{content:"";position:absolute;inset:-8px;border-radius:50%;z-index:1;pointer-events:none;--ring:6px;--arc:360deg;background:conic-gradient(from 0deg,transparent 0 calc(360deg - var(--arc)),#00e5ff calc(360deg - var(--arc)),#5865f2 360deg);-webkit-mask:radial-gradient(closest-side,transparent calc(100% - var(--ring)),#fff calc(100% - var(--ring)));mask:radial-gradient(closest-side,transparent calc(100% - var(--ring)),#fff calc(100% - var(--ring)));animation:ring-spin 10s linear infinite,ring-hue 8s linear infinite;will-change:transform,filter}
+    @keyframes ring-spin{to{transform:rotate(360deg)}}
+    @keyframes ring-hue{
+      0%{filter:hue-rotate(0deg) drop-shadow(0 0 14px rgba(0,229,255,.25)) drop-shadow(0 0 18px rgba(88,101,242,.25))}
+      100%{filter:hue-rotate(360deg) drop-shadow(0 0 14px rgba(0,229,255,.25)) drop-shadow(0 0 18px rgba(88,101,242,.25))}
+    }
+    h1{margin:8px 0 6px;font-size:clamp(26px,5vw,34px)}
+    .tag{color:var(--muted);margin-bottom:22px;font-size:15px}
+    .links{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:20px 0 10px}
+    .btn{display:inline-block;padding:12px 14px;border-radius:12px;text-decoration:none;color:#fff;background:linear-gradient(180deg,var(--accent),#3f49c6);box-shadow:0 6px 18px rgba(88,101,242,.35);transition:transform .08s ease,box-shadow .15s ease,background .2s ease}
+    .btn:hover{transform:translateY(-1px);box-shadow:0 10px 26px rgba(88,101,242,.45);background:linear-gradient(180deg,#6973ff,#4752c4)}
+    .btn.secondary{background:#22262f;border:1px solid rgba(255,255,255,.08);box-shadow:none}
+    .btn.secondary:hover{background:#28313b}
+    .btn.disabled{pointer-events:none;cursor:default;opacity:.7}
+    .nowplaying{margin:16px auto 0;padding:12px 14px;display:flex;gap:10px;align-items:center;justify-content:center;background:#1a1f28;border:1px solid rgba(255,255,255,.07);border-radius:12px;color:var(--muted);max-width:520px}
+    .np-title{color:var(--fg);font-weight:600}
+    .iconbtn{appearance:none;border:0;border-radius:10px;padding:8px 10px;background:#222734;color:var(--fg);cursor:pointer;transition:background .2s ease,transform .06s ease}
+    .iconbtn:hover{background:#283042}
+    .iconbtn:active{transform:scale(.98)}
+    .vol{width:120px;accent-color:var(--accent)}
+    .vizWrap{margin:14px auto 0;background:#121721;border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:8px;max-width:680px}
+    .visualizer{display:block;width:100%;height:120px;border-radius:8px;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0))}
+    footer{text-align:center;margin-top:18px;color:var(--muted);font-size:12px}
+    #gate{position:fixed;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;color:#fff;text-align:center;cursor:pointer;user-select:none;background:rgba(6,8,12,0.55);-webkit-backdrop-filter:blur(8px) saturate(120%);backdrop-filter:blur(8px) saturate(120%);transition:opacity .35s ease}
+    #gate .bubble{padding:14px 18px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);box-shadow:0 10px 26px rgba(0,0,0,.35)}
+    #gate .hint{color:var(--muted);font-size:14px}
+    #gate.hidden{opacity:0;pointer-events:none}
+    #moodNub{position:fixed;right:18px;bottom:18px;z-index:3;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,var(--accent),#3f49c6);color:#fff;font-size:18px;cursor:pointer;box-shadow:0 8px 24px rgba(88,101,242,.35);border:1px solid rgba(255,255,255,.12);transition:transform .08s ease,box-shadow .15s ease,opacity .2s ease}
+    #moodNub:hover{transform:translateY(-1px);box-shadow:0 12px 28px rgba(88,101,242,.45)}
+    #moodNub:active{transform:scale(.98)}
+    #langBtn{position:fixed;left:18px;bottom:18px;z-index:3;height:36px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:#22262f;color:#fff;padding:0 12px;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.25);transition:transform .08s ease,background .2s ease}
+    #langBtn:hover{background:#28313b;transform:translateY(-1px)}
+    #langBtn:active{transform:scale(.98)}
+    #moodPanel{position:fixed;left:50%;top:0;transform:translate(-50%,-120vh);z-index:4;width:min(92vw,420px);background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.10);border-radius:16px;padding:16px 16px 18px;color:var(--fg);text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.45),inset 0 0 0 1px rgba(255,255,255,.02);backdrop-filter:blur(8px);pointer-events:none;opacity:0}
+    #moodPanel.show{pointer-events:auto;opacity:1;animation:dropIn 720ms cubic-bezier(.2,.8,.2,1) forwards}
+    #moodPanel.hide{pointer-events:none;animation:liftOut 260ms ease forwards}
+    @keyframes dropIn{0%{transform:translate(-50%,-120vh) scale(.96) rotate(2deg);opacity:0}70%{transform:translate(-50%,12px) scale(1.01);opacity:1}85%{transform:translate(-50%,-6px)}100%{transform:translate(-50%,0)}}
+    @keyframes liftOut{to{transform:translate(-50%,-120vh) scale(.96);opacity:0}}
+    .moodRow{display:flex;gap:12px;align-items:center;justify-content:center;margin-top:10px}
+    #moodEmoji{font-size:28px;line-height:1;width:40px;height:40px;display:grid;place-items:center;background:#1a1f28;border:1px solid rgba(255,255,255,.08);border-radius:10px;box-shadow:0 6px 16px rgba(0,0,0,.35)}
+    #moodRange{width:100%;max-width:260px;accent-color:var(--accent)}
+    .moodBadge{min-width:52px;padding:8px 10px;border-radius:10px;background:#222734;border:1px solid rgba(255,255,255,.08);color:#fff;font-weight:600}
+    #moodBackdrop{position:fixed;inset:0;z-index:3;background:rgba(0,0,0,.35);backdrop-filter:blur(2px);opacity:0;pointer-events:none;transition:opacity .25s ease}
+    #moodBackdrop.show{opacity:1;pointer-events:auto}
+    #moodLock{margin-top:10px;color:var(--muted);font-size:12px;display:none}
+    #moodLock.show{display:block}
+  
+/* === Code-Gate (Floating Button + Dialog) === */
+#z0{position:fixed;right:18px;bottom:66px;z-index:3;width:36px;height:36px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,var(--accent,#5865f2),#3f49c6);
+    color:#fff;font-size:18px;cursor:pointer;box-shadow:0 8px 24px rgba(88,101,242,.35);border:1px solid rgba(255,255,255,.12);
+    transition:transform .08s ease,box-shadow .15s ease,opacity .2s ease}
+#z0:hover{transform:translateY(-1px);box-shadow:0 12px 28px rgba(88,101,242,.45)}
+#z0:active{transform:scale(.98)}
+#zB{position:fixed;inset:0;z-index:3;background:rgba(0,0,0,.35);backdrop-filter:blur(2px);opacity:0;pointer-events:none;transition:opacity .25s ease}
+#zB.show{opacity:1;pointer-events:auto}
+#zP{position:fixed;left:50%;top:0;transform:translate(-50%,-120vh);z-index:4;width:min(92vw,420px);
+    background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.10);
+    border-radius:16px;padding:16px 16px 18px;color:var(--fg,#fff);text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.45),inset 0 0 0 1px rgba(255,255,255,.02);backdrop-filter:blur(8px);pointer-events:none;opacity:0}
+#zP.show{pointer-events:auto;opacity:1;animation:dropIn 720ms cubic-bezier(.2,.8,.2,1) forwards}
+#zP.hide{pointer-events:none;animation:liftOut 260ms ease forwards}
+.zR{display:flex;gap:10px;align-items:center;justify-content:center;margin-top:12px}
+#zI{width:160px;padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:#1a1f28;color:#fff;font-size:16px;letter-spacing:2px;text-align:center}
+#zG{appearance:none;border:0;border-radius:10px;padding:10px 12px;background:#222734;color:#fff;cursor:pointer;transition:background .2s ease,transform .06s ease}
+#zG:hover{background:#283042}
+#zG:active{transform:scale(.98)}
+#zM{margin-top:8px;font-size:13px;color:#ff6166;min-height:1.1em}
+
+</style>
+</head>
+<body>
+  <canvas id="bg" aria-hidden="true"></canvas>
+  <div id="cursorGlow" aria-hidden="true"></div>
+
+  <div id="gate" role="button" tabindex="0" aria-label="">
+    <div class="bubble">
+      <div id="gateTitle" style="font-size:22px;font-weight:700;">Click to enter</div>
+      <div id="gateHint" class="hint">Press <b>Enter</b> or <b>Space</b></div>
+    </div>
+  </div>
+
+  <main class="wrap">
+    <section id="card" class="card blurred">
+      <div class="avatarWrap">
+        <img class="avatar" src="assets/icon.png" alt="Avatar" width="415" height="429" />
+      </div>
+
+      <h1>kamyllan</h1>
+      <p class="tag" id="tagline">building cool things • dark mode enthusiast • cutter • programmer</p>
+
+      <div class="links">
+        <a id="otherProfile" class="btn" href="@k.html">Other Profile</a>
+        <a class="btn" href="https://discord.com/" target="_blank" rel="noopener">Discord ~ kamyllan</a>
+        <a class="btn" href="https://github.com/emidaduck" target="_blank" rel="noopener">GitHub</a>
+      </div>
+
+      <div class="nowplaying">
+        <button id="toggle" class="iconbtn" aria-pressed="true" title="Toggle sound">🔊</button>
+        <input id="vol" class="vol" type="range" min="0" max="1" step="0.01" value="0.1" aria-label="Volume">
+        <span id="npLabel">Now playing:</span>
+        <span class="np-title" id="trackTitle">99ZED x SALIVA GREY - SELF SABOTAGE (prod. 99ZED)</span>
+      </div>
+
+      <div class="vizWrap">
+        <canvas id="viz" class="visualizer"></canvas>
+      </div>
+
+      <footer>© <span id="yr"></span> kamyllan</footer>
+    </section>
+  </main>
+
+  <button id="moodNub" title="" aria-label="">😊</button>
+  <button id="langBtn" title="Change language">EN</button>
+
+  <div id="moodBackdrop"></div>
+  <div id="moodPanel" role="dialog" aria-modal="true" aria-labelledby="moodTitle">
+    <div style="font-weight:700;font-size:16px;" id="moodTitle">Mood meter</div>
+    <div class="moodRow" style="margin-top:8px;">
+      <div id="moodEmoji" aria-hidden="true">🙂</div>
+      <input id="moodRange" type="range" min="0" max="100" step="1" value="70" aria-label="">
+      <div class="moodBadge"><span id="moodValue">70</span></div>
+    </div>
+    <div id="moodLock">Locked</div>
+    <div id="moodScaleHint" style="margin-top:8px;font-size:12px;color:var(--muted);">0 = worst • 100 = best</div>
+  </div>
+
+  <audio id="bgm" src="assets/99ZED%20x%20SALIVA%20GREY%20-%20SELF%20SABOTAGE%20(prod.%2099ZED).mp3" preload="auto" loop playsinline crossorigin="anonymous"></audio>
+
+  <script>
+    document.getElementById('yr').textContent = new Date().getFullYear()
+    const audio=document.getElementById('bgm')
+    const toggle=document.getElementById('toggle')
+    const vol=document.getElementById('vol')
+    const title=document.getElementById('trackTitle')
+    const card=document.getElementById('card')
+    const gate=document.getElementById('gate')
+    const gateTitle=document.getElementById('gateTitle')
+    const gateHint=document.getElementById('gateHint')
+    const otherProfile=document.getElementById('otherProfile')
+    const npLabel=document.getElementById('npLabel')
+    const moodNub=document.getElementById('moodNub')
+    const moodPanel=document.getElementById('moodPanel')
+    const moodBackdrop=document.getElementById('moodBackdrop')
+    const moodRange=document.getElementById('moodRange')
+    const moodEmoji=document.getElementById('moodEmoji')
+    const moodValue=document.getElementById('moodValue')
+    const moodLock=document.getElementById('moodLock')
+    const moodTitleEl=document.getElementById('moodTitle')
+    const moodScaleHint=document.getElementById('moodScaleHint')
+    const langBtn=document.getElementById('langBtn')
+    title.textContent="99ZED x SALIVA GREY - SELF SABOTAGE (prod. 99ZED)"
+    audio.muted=false; audio.volume = parseFloat(vol.value || '0.1')
+
+    const i18n={en:{gateTitle:"Click to enter",gateHint:"Press <b>Enter</b> or <b>Space</b>",otherProfile:"Other Profile",npLabel:"Now playing:",moodTitle:"Mood Meter",locked:"Locked",scaleAria:"Mood from 0 to 100",scaleHint:"0 = worst • 100 = best",nubLabel:"Open mood meter",gateAria:"Click to enter and start music",langLabel:"EN",langTitle:"Change language"},de:{gateTitle:"Klicken zum Starten",gateHint:"Drücke <b>Enter</b> oder <b>Leertaste</b>",otherProfile:"Andere Seite",npLabel:"Läuft gerade:",moodTitle:"Stimmungsmeter",locked:"Gesperrt",scaleAria:"Stimmung von 0 bis 100",scaleHint:"0 = schlimm • 100 = perfekt",nubLabel:"Stimmung öffnen",gateAria:"Klicken zum Starten und Musik abspielen",langLabel:"DE",langTitle:"Sprache wechseln"}}
+    function applyLang(lang){const t=i18n[lang]||i18n.en;document.documentElement.lang=lang;gateTitle.textContent=t.gateTitle;gateHint.innerHTML=t.gateHint;gate.setAttribute('aria-label',t.gateAria);otherProfile.textContent=t.otherProfile;npLabel.textContent=t.npLabel;moodTitleEl.textContent=t.moodTitle;moodLock.textContent=t.locked;moodRange.setAttribute('aria-label',t.scaleAria);moodScaleHint.textContent=t.scaleHint;moodNub.title=t.nubLabel;moodNub.setAttribute('aria-label',t.nubLabel);langBtn.textContent=t.langLabel;langBtn.title=t.langTitle;localStorage.setItem('site_lang',lang)}
+    function toggleLang(){const cur=(localStorage.getItem('site_lang')||document.documentElement.lang||'en').toLowerCase();applyLang(cur==='en'?'de':'en')}
+    applyLang((localStorage.getItem('site_lang')||document.documentElement.lang||'de').toLowerCase())
+    langBtn.addEventListener('click',toggleLang)
+
+    const canvas=document.getElementById('viz')
+    const ctx=canvas.getContext('2d')
+    const DPR=Math.max(1,window.devicePixelRatio||1)
+    let audioCtx,analyser,sourceNode,vizReady=false
+    function resizeCanvas(){const w=canvas.clientWidth,h=canvas.clientHeight;canvas.width=Math.floor(w*DPR);canvas.height=Math.floor(h*DPR);ctx.setTransform(DPR,0,0,DPR,0,0)}
+    window.addEventListener('resize',resizeCanvas);resizeCanvas()
+    function initViz(){if(vizReady)return;audioCtx=new(window.AudioContext||window.webkitAudioContext)();analyser=audioCtx.createAnalyser();analyser.fftSize=256;analyser.smoothingTimeConstant=0.8;sourceNode=audioCtx.createMediaElementSource(audio);sourceNode.connect(analyser);analyser.connect(audioCtx.destination);vizReady=true;drawViz()}
+    function resumeCtx(){if(!vizReady)initViz();if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume().catch(()=>{})}
+    function drawViz(){const bars=64;const data=new Uint8Array(analyser.frequencyBinCount);(function frame(){requestAnimationFrame(frame);analyser.getByteFrequencyData(data);const w=canvas.clientWidth,h=canvas.clientHeight;ctx.clearRect(0,0,w,h);const barW=w/bars;for(let i=0;i<bars;i++){const idx=Math.min(data.length-1,Math.floor(i*(data.length/bars))+2);const v=data[idx]/255;const barH=Math.max(2,v*(h-8));const x=i*barW,y=h-barH;const g=ctx.createLinearGradient(0,y,0,h);g.addColorStop(0,'#00e5ff');g.addColorStop(1,'#5865f2');ctx.fillStyle=g;const pad=Math.max(2,barW*.25);ctx.fillRect(Math.floor(x)+pad/2,y,Math.max(2,barW-pad),barH)}})()}
+
+    async function enterSite(){card.classList.remove('blurred');gate.classList.add('hidden');setTimeout(()=>gate.style.display='none',380);try{resumeCtx();await audio.play()}catch(e){audio.play().catch(()=>{})}}
+    gate.addEventListener('click',enterSite)
+    gate.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();enterSite()}})
+    toggle.addEventListener('click',()=>{if(audio.paused){resumeCtx();audio.play().catch(()=>{})}else{audio.muted=!audio.muted}toggle.textContent=(audio.muted||audio.paused)?'🔇':'🔊';toggle.setAttribute('aria-pressed',String(!audio.muted))})
+    // default fallback is now 0.1 too
+    vol.addEventListener('input',e=>{audio.volume=parseFloat(e.target.value||'0.1')})
+    audio.addEventListener('play',resumeCtx,{once:true})
+
+    const bg=document.getElementById('bg')
+    const bctx=bg.getContext('2d')
+    const BDPR=Math.max(1,window.devicePixelRatio||1)
+    let W=0,H=0,nodes=[],maxDist=140,nodeCount=0
+    function sizeBg(){W=window.innerWidth;H=window.innerHeight;bg.width=Math.floor(W*BDPR);bg.height=Math.floor(H*BDPR);bctx.setTransform(BDPR,0,0,BDPR,0,0);nodeCount=Math.min(120,Math.max(40,Math.floor((W*H)/17000)));maxDist=Math.max(110,Math.min(190,Math.sqrt(W*H)/10));initNodes()}
+    window.addEventListener('resize',sizeBg);sizeBg()
+    function rand(a,b){return a+Math.random()*(b-a)}
+    function initNodes(){nodes=[];for(let i=0;i<nodeCount;i++)nodes.push({x:rand(0,W),y:rand(0,H),vx:rand(-0.32,0.32),vy:rand(-0.32,0.32),r:rand(1.2,2.1)})}
+    function step(){for(const n of nodes){n.x+=n.vx;n.y+=n.vy;if(n.x<-20)n.x=W+20;if(n.x>W+20)n.x=-20;if(n.y<-20)n.y=H+20;if(n.y>H+20)n.y=-20}}
+    function drawWeb(){bctx.clearRect(0,0,W,H);for(let i=0;i<nodes.length;i++){const a=nodes[i];for(let j=i+1;j<nodes.length;j++){const b=nodes[j];const dx=a.x-b.x,dy=a.y-b.y;const d2=dx*dx+dy*dy,md2=maxDist*maxDist;if(d2<md2){const t=1-(d2/md2);bctx.strokeStyle=`rgba(88,101,242,${0.45*t})`;bctx.lineWidth=1;bctx.beginPath();bctx.moveTo(a.x,a.y);bctx.lineTo(b.x,b.y);bctx.stroke()}}}for(const n of nodes){bctx.fillStyle='rgba(0,229,255,0.65)';bctx.beginPath();bctx.arc(n.x,n.y,n.r,0,Math.PI*2);bctx.fill()}}
+    (function loop(){step();drawWeb();requestAnimationFrame(loop)})()
+
+    const glow=document.getElementById('cursorGlow')
+    let gx=-9999,gy=-9999,tx=gx,ty=gy
+    document.addEventListener('pointermove',e=>{tx=e.clientX-glow.offsetWidth/2;ty=e.clientY-glow.offsetHeight/2})
+    document.addEventListener('pointerenter',()=>glow.style.opacity=.9)
+    document.addEventListener('pointerleave',()=>glow.style.opacity=0)
+    ;(function follow(){gx+=(tx-gx)*0.15;gy+=(ty-gy)*0.15;glow.style.transform=`translate3d(${gx}px,${gy}px,0)`;requestAnimationFrame(follow)})()
+
+    const clamp=(v,min,max)=>Math.max(min,Math.min(max,v))
+    const moodToEmoji=v=>{if(v<=10)return'💀';if(v<=25)return'😭';if(v<=40)return'🙁';if(v<=60)return'😐';if(v<=80)return'🙂';if(v<=95)return'😄';return'🤩'}
+    function setMood(v){v=clamp(v,0,100);moodEmoji.textContent=moodToEmoji(v);moodValue.textContent=v;moodRange.value=v;const t=v/100;moodNub.style.background=`linear-gradient(180deg, rgba(0,229,255,${1-t*.4}), rgba(88,101,242,${.8+.2*t}))`}
+    async function loadConfigAndInit(){try{const res=await fetch('config.json?ts='+Date.now(),{cache:'no-store'});if(res.ok){const cfg=await res.json();if(typeof cfg.mood==='number')setMood(cfg.mood);if(cfg.lockMood){moodRange.disabled=true;moodRange.setAttribute('aria-disabled','true');moodLock.classList.add('show')}}else{const fallback=+localStorage.getItem('kamyllan_mood')||70;setMood(fallback)}}catch(_){const fallback=+localStorage.getItem('kamyllan_mood')||70;setMood(fallback)}}
+    loadConfigAndInit()
+    moodRange.addEventListener('input',e=>{if(moodRange.disabled)return;const v=+e.target.value||0;setMood(v);localStorage.setItem('kamyllan_mood',v)})
+
+    let moodOpen=false
+    function openMood(){if(moodOpen)return;moodOpen=true;moodBackdrop.classList.add('show');moodPanel.classList.remove('hide');void moodPanel.offsetWidth;moodPanel.classList.add('show')}
+    function closeMood(){if(!moodOpen)return;moodOpen=false;moodBackdrop.classList.remove('show');moodPanel.classList.remove('show');moodPanel.classList.add('hide')}
+    moodPanel.addEventListener('animationend',e=>{if(e.animationName==='liftOut')moodPanel.classList.remove('hide')})
+    moodNub.addEventListener('click',()=>moodOpen?closeMood():openMood())
+    moodBackdrop.addEventListener('click',closeMood)
+    window.addEventListener('keydown',e=>{if(e.key==='Escape')closeMood()})
+  </script>
+
+<!-- === Code Gate Trigger + Panel === -->
+<button id="z0" title="Code eingeben" aria-label="Code eingeben">🔐</button>
+<div id="zB"></div>
+<div id="zP" role="dialog" aria-modal="true" aria-labelledby="zT">
+  <div id="zT" style="font-weight:700;font-size:16px;">Zugangscode</div>
+  <div class="zR">
+    <input id="zI" type="password" inputmode="numeric" maxlength="6" pattern="\d{6}" placeholder="••••••" autocomplete="off" />
+    <button id="zG">Prüfen</button>
+  </div>
+  <div id="zM" aria-live="polite"></div>
+  <div style="margin-top:6px;font-size:12px;color:var(--muted,#b7bcc5);">6-stelliger Code</div>
+</div>
+
+
+<script>
+(function(d){
+  var $=function(x){return d.getElementById(x)},
+      Z0=$('z0'), ZB=$('zB'), ZP=$('zP'), ZI=$('zI'), ZG=$('zG'), ZM=$('zM'),
+      R='secret.html',
+      H=(['bmU','BR0D','WIFcbr','d5mdLW','D+dzK','LKrZ8','+0XuK','7eEtRo','Fd4='].join('')),
+      O=function(){ZB.classList.add('show');ZP.classList.remove('hide');void ZP.offsetWidth;ZP.classList.add('show'); ZM.textContent=''; ZI.value=''; setTimeout(function(){ZI.focus()},120)},
+      C=function(){ZB.classList.remove('show');ZP.classList.remove('show');ZP.classList.add('hide')},
+      X=function(b){for(var a='',u=new Uint8Array(b),i=0;i<u.length;i++)a+=String.fromCharCode(u[i]);return btoa(a)},
+      S=function(t){return crypto.subtle.digest('SHA-256', new TextEncoder().encode(t)).then(X)},
+      F=function(){var v=(ZI.value||'').trim(); if(!/^\d{6}$/.test(v)){ZM.textContent='Bitte 6 Ziffern';return}
+        ZG.disabled=true; ZI.disabled=true; ZM.textContent='…';
+        S(v).then(function(h){ if(h===H){ ZM.style.color='#78ff9b'; ZM.textContent='✔️ Erfolg'; setTimeout(function(){location.href=R},600) }
+          else{ ZM.style.color='#ff6166'; ZM.textContent='Falscher Code'; ZG.disabled=false; ZI.disabled=false; ZI.focus(); } })
+        .catch(function(){ ZM.style.color='#ff6166'; ZM.textContent='Fehler'; ZG.disabled=false; ZI.disabled=false; });
+      };
+  Z0.addEventListener('click', function(){ZP.classList.contains('show')?C():O()});
+  ZB.addEventListener('click', C);
+  d.addEventListener('keydown', function(e){ if(e.key==='Escape') C(); });
+  ZG.addEventListener('click', F);
+  ZI.addEventListener('keydown', function(e){ if(e.key==='Enter') F(); });
+})(document);
+</script>
+
+</body>
+</html>
