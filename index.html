@@ -223,163 +223,325 @@
 
   <audio id="bgm" src="assets/ThereIsNoGame - Gigi's song.mp3" preload="auto" loop playsinline crossorigin="anonymous"></audio>
 
-  <script>
-    document.getElementById('yr').textContent = new Date().getFullYear()
-    const audio=document.getElementById('bgm')
-    const toggle=document.getElementById('toggle')
-    const vol=document.getElementById('vol')
-    const title=document.getElementById('trackTitle')
-    const card=document.getElementById('card')
-    const gate=document.getElementById('gate')
-    const gateTitle=document.getElementById('gateTitle')
-    const gateHint=document.getElementById('gateHint')
-    const otherProfile=document.getElementById('otherProfile')
-    const npLabel=document.getElementById('npLabel')
-    const moodNub=document.getElementById('moodNub')
-    const moodPanel=document.getElementById('moodPanel')
-    const moodBackdrop=document.getElementById('moodBackdrop')
-    const moodRange=document.getElementById('moodRange')
-    const moodEmoji=document.getElementById('moodEmoji')
-    const moodValue=document.getElementById('moodValue')
-    const moodLock=document.getElementById('moodLock')
-    const moodTitleEl=document.getElementById('moodTitle')
-    const moodScaleHint=document.getElementById('moodScaleHint')
-    const langBtn=document.getElementById('langBtn')
+<script>
+  // Jahr im Footer
+  document.getElementById('yr').textContent = new Date().getFullYear()
 
-    // Edge glow vars
-    const root=document.documentElement
-    let oTop=0,oRight=0,oBottom=0,oLeft=0, sTop=1,sRight=1,sBottom=1,sLeft=1
+  // Audio / UI Referenzen
+  const audio = document.getElementById('bgm')
+  const toggle = document.getElementById('toggle')
+  const vol = document.getElementById('vol')
+  const title = document.getElementById('trackTitle')
+  const card = document.getElementById('card')
+  const gate = document.getElementById('gate')
+  const gateTitle = document.getElementById('gateTitle')
+  const gateHint = document.getElementById('gateHint')
+  const otherProfile = document.getElementById('otherProfile')
+  const npLabel = document.getElementById('npLabel')
+  const moodNub = document.getElementById('moodNub')
+  const moodPanel = document.getElementById('moodPanel')
+  const moodBackdrop = document.getElementById('moodBackdrop')
+  const moodRange = document.getElementById('moodRange')
+  const moodEmoji = document.getElementById('moodEmoji')
+  const moodValue = document.getElementById('moodValue')
+  const moodLock = document.getElementById('moodLock')
+  const moodTitleEl = document.getElementById('moodTitle')
+  const moodScaleHint = document.getElementById('moodScaleHint')
+  const langBtn = document.getElementById('langBtn')
 
-    title.textContent="ThereIsNoGame - Gigi's song.mp3"
-    audio.muted=false; audio.volume = parseFloat(vol.value || '0.1')
+  // Edge glow Variablen (für den randbasierten Visualizer)
+  const root = document.documentElement
+  let oTop=0,oRight=0,oBottom=0,oLeft=0, sTop=1,sRight=1,sBottom=1,sLeft=1
 
-    const i18n={en:{gateTitle:"Click to enter",gateHint:"Press <b>Enter</b> or <b>Space</b>",otherProfile:"Other Profile",npLabel:"Now playing:",moodTitle:"Mood Meter",locked:"Locked",scaleAria:"Mood from 0 to 100",scaleHint:"0 = worst • 100 = best",nubLabel:"Open mood meter",gateAria:"Click to enter and start music",langLabel:"EN",langTitle:"Change language"},de:{gateTitle:"Klicken zum Starten",gateHint:"Drücke <b>Enter</b> oder <b>Leertaste</b>",otherProfile:"Andere Seite",npLabel:"Läuft gerade:",moodTitle:"Stimmungsmeter",locked:"Gesperrt",scaleAria:"Stimmung von 0 bis 100",scaleHint:"0 = schlimm • 100 = perfekt",nubLabel:"Stimmung öffnen",gateAria:"Klicken zum Starten und Musik abspielen",langLabel:"DE",langTitle:"Sprache wechseln"}}
-    function applyLang(lang){const t=i18n[lang]||i18n.en;document.documentElement.lang=lang;gateTitle.textContent=t.gateTitle;gateHint.innerHTML=t.gateHint;gate.setAttribute('aria-label',t.gateAria);otherProfile.textContent=t.otherProfile;npLabel.textContent=t.npLabel;moodTitleEl.textContent=t.moodTitle;moodLock.textContent=t.locked;moodRange.setAttribute('aria-label',t.scaleAria);moodScaleHint.textContent=t.scaleHint;moodNub.title=t.nubLabel;moodNub.setAttribute('aria-label',t.nubLabel);langBtn.textContent=t.langLabel;langBtn.title=t.langTitle;localStorage.setItem('site_lang',lang)}
-    function toggleLang(){const cur=(localStorage.getItem('site_lang')||document.documentElement.lang||'en').toLowerCase();applyLang(cur==='en'?'de':'en')}
-    applyLang((localStorage.getItem('site_lang')||document.documentElement.lang||'de').toLowerCase())
-    langBtn.addEventListener('click',toggleLang)
+  // Now Playing
+  title.textContent = "ThereIsNoGame - Gigi's song.mp3"
+  audio.muted = false
+  audio.volume = parseFloat(vol.value || '0.1')
 
-    const canvas=document.getElementById('viz')
-    const ctx=canvas.getContext('2d')
-    const DPR=Math.max(1,window.devicePixelRatio||1)
-    let audioCtx,analyser,sourceNode,vizReady=false
-    function resizeCanvas(){const w=canvas.clientWidth,h=canvas.clientHeight;canvas.width=Math.floor(w*DPR);canvas.height=Math.floor(h*DPR);ctx.setTransform(DPR,0,0,DPR,0,0)}
-    window.addEventListener('resize',resizeCanvas);resizeCanvas()
-    function initViz(){if(vizReady)return;audioCtx=new(window.AudioContext||window.webkitAudioContext)();analyser=audioCtx.createAnalyser();analyser.fftSize=256;analyser.smoothingTimeConstant=0.8;sourceNode=audioCtx.createMediaElementSource(audio);sourceNode.connect(analyser);analyser.connect(audioCtx.destination);vizReady=true;drawViz()}
-    function resumeCtx(){if(!vizReady)initViz();if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume().catch(()=>{})}
+  // i18n
+  const i18n = {
+    en:{gateTitle:"Click to enter",gateHint:"Press <b>Enter</b> or <b>Space</b>",otherProfile:"Other Profile",npLabel:"Now playing:",moodTitle:"Mood Meter",locked:"Locked",scaleAria:"Mood from 0 to 100",scaleHint:"0 = worst • 100 = best",nubLabel:"Open mood meter",gateAria:"Click to enter and start music",langLabel:"EN",langTitle:"Change language"},
+    de:{gateTitle:"Klicken zum Starten",gateHint:"Drücke <b>Enter</b> oder <b>Leertaste</b>",otherProfile:"Andere Seite",npLabel:"Läuft gerade:",moodTitle:"Stimmungsmeter",locked:"Gesperrt",scaleAria:"Stimmung von 0 bis 100",scaleHint:"0 = schlimm • 100 = perfekt",nubLabel:"Stimmung öffnen",gateAria:"Klicken zum Starten und Musik abspielen",langLabel:"DE",langTitle:"Sprache wechseln"}
+  }
+  function applyLang(lang){
+    const t=i18n[lang]||i18n.en
+    document.documentElement.lang=lang
+    gateTitle.textContent=t.gateTitle
+    gateHint.innerHTML=t.gateHint
+    gate.setAttribute('aria-label',t.gateAria)
+    otherProfile.textContent=t.otherProfile
+    npLabel.textContent=t.npLabel
+    moodTitleEl.textContent=t.moodTitle
+    moodLock.textContent=t.locked
+    moodRange.setAttribute('aria-label',t.scaleAria)
+    moodScaleHint.textContent=t.scaleHint
+    moodNub.title=t.nubLabel
+    moodNub.setAttribute('aria-label',t.nubLabel)
+    langBtn.textContent=t.langLabel
+    langBtn.title=t.langTitle
+    localStorage.setItem('site_lang',lang)
+  }
+  function toggleLang(){
+    const cur=(localStorage.getItem('site_lang')||document.documentElement.lang||'en').toLowerCase()
+    applyLang(cur==='en'?'de':'en')
+  }
+  applyLang((localStorage.getItem('site_lang')||document.documentElement.lang||'de').toLowerCase())
+  langBtn.addEventListener('click',toggleLang)
 
-    // Visualizer + edge glow energies
-    function drawViz(){
-      const bars=64;
-      const data=new Uint8Array(analyser.frequencyBinCount);
-      (function frame(){
-        requestAnimationFrame(frame);
-        analyser.getByteFrequencyData(data);
+  // Canvas-Visualizer (Balken) + AudioContext
+  const canvas = document.getElementById('viz')
+  const ctx = canvas.getContext('2d')
+  const DPR = Math.max(1, window.devicePixelRatio||1)
+  let audioCtx, analyser, sourceNode, vizReady=false
 
-        // Bars
-        const w=canvas.clientWidth,h=canvas.clientHeight;
-        ctx.clearRect(0,0,w,h);
-        const barW=w/bars;
-        for(let i=0;i<bars;i++){
-          const idx=Math.min(data.length-1,Math.floor(i*(data.length/bars))+2);
-          const v=data[idx]/255;
-          const barH=Math.max(2,v*(h-8));
-          const x=i*barW,y=h-barH;
-          const g=ctx.createLinearGradient(0,y,0,h);
-          g.addColorStop(0,'#00e5ff');
-          g.addColorStop(1,'#5865f2');
-          ctx.fillStyle=g;
-          const pad=Math.max(2,barW*.25);
-          ctx.fillRect(Math.floor(x)+pad/2,y,Math.max(2,barW-pad),barH);
-        }
+  function resizeCanvas(){
+    const w=canvas.clientWidth, h=canvas.clientHeight
+    canvas.width=Math.floor(w*DPR)
+    canvas.height=Math.floor(h*DPR)
+    ctx.setTransform(DPR,0,0,DPR,0,0)
+  }
+  window.addEventListener('resize',resizeCanvas); resizeCanvas()
 
-        // Energies: bass (lowest 15%), mids (35–65%), treble (top 15%)
-        const n=data.length;
-        const lowW=Math.max(4,Math.floor(n*0.15));
-        const highW=Math.max(4,Math.floor(n*0.15));
-        const midA=Math.floor(n*0.35), midB=Math.floor(n*0.65);
-        let bass=0, mid=0, treb=0;
-        for(let i=0;i<lowW;i++) bass+=data[i];
-        for(let i=midA;i<midB;i++) mid+=data[i];
-        for(let i=n-highW;i<n;i++) treb+=data[i];
-        bass/= (lowW*255);
-        mid /= ((midB-midA)*255);
-        treb/= (highW*255);
+  function initViz(){
+    if(vizReady) return
+    audioCtx = new(window.AudioContext||window.webkitAudioContext)()
+    analyser = audioCtx.createAnalyser()
+    analyser.fftSize = 256
+    analyser.smoothingTimeConstant = 0.8
+    sourceNode = audioCtx.createMediaElementSource(audio)
+    sourceNode.connect(analyser)
+    analyser.connect(audioCtx.destination)
+    vizReady=true
+    drawViz()
+  }
+  function resumeCtx(){
+    if(!vizReady) initViz()
+    if(audioCtx && audioCtx.state==='suspended') audioCtx.resume().catch(()=>{})
+  }
 
-        // Smooth + map to opacity/scale
-// Smooth + map to opacity/scale (≈35% stronger)
-const s = 0.85, a = 1 - s;
+  // Visualizer + Edge-Glow-Reaktionen
+  function drawViz(){
+    const bars=64
+    const data=new Uint8Array(analyser.frequencyBinCount)
+    ;(function frame(){
+      requestAnimationFrame(frame)
+      analyser.getByteFrequencyData(data)
 
-// opacity caps slightly raised so it can breathe
-oBottom = s*oBottom + a*Math.min(1.00, bass*2.30); // was 1.7
-oLeft   = s*oLeft   + a*Math.min(0.95, mid*2.05);  // was 1.5
-oRight  = s*oRight  + a*Math.min(0.95, mid*2.05);  // was 1.5
-oTop    = s*oTop    + a*Math.min(0.90, treb*1.90); // was 1.4
+      // Bars zeichnen
+      const w=canvas.clientWidth, h=canvas.clientHeight
+      ctx.clearRect(0,0,w,h)
+      const barW=w/bars
+      for(let i=0;i<bars;i++){
+        const idx=Math.min(data.length-1,Math.floor(i*(data.length/bars))+2)
+        const v=data[idx]/255
+        const barH=Math.max(2, v*(h-8))
+        const x=i*barW, y=h-barH
+        const g=ctx.createLinearGradient(0,y,0,h)
+        g.addColorStop(0,'#00e5ff')
+        g.addColorStop(1,'#5865f2')
+        ctx.fillStyle=g
+        const pad=Math.max(2, barW*.25)
+        ctx.fillRect(Math.floor(x)+pad/2, y, Math.max(2,barW-pad), barH)
+      }
 
-// scale reacts stronger too
-sBottom = s*sBottom + a*(1 + bass*1.08); // was 0.8
-sLeft   = s*sLeft   + a*(1 + mid*0.81);  // was 0.6
-sRight  = s*sRight  + a*(1 + mid*0.81);  // was 0.6
-sTop    = s*sTop    + a*(1 + treb*0.68); // was 0.5
+      // Energie aufteilen: Bass / Mid / Treble
+      const n=data.length
+      const lowW=Math.max(4,Math.floor(n*0.15))
+      const highW=Math.max(4,Math.floor(n*0.15))
+      const midA=Math.floor(n*0.35), midB=Math.floor(n*0.65)
+      let bass=0, mid=0, treb=0
+      for(let i=0;i<lowW;i++) bass+=data[i]
+      for(let i=midA;i<midB;i++) mid+=data[i]
+      for(let i=n-highW;i<n;i++) treb+=data[i]
+      bass/= (lowW*255)
+      mid /= ((midB-midA)*255)
+      treb/= (highW*255)
 
-root.style.setProperty('--eg-bottom-o', oBottom.toFixed(3));
-root.style.setProperty('--eg-bottom-s', sBottom.toFixed(3));
-root.style.setProperty('--eg-left-o',   oLeft.toFixed(3));
-root.style.setProperty('--eg-left-s',   sLeft.toFixed(3));
-root.style.setProperty('--eg-right-o',  oRight.toFixed(3));
-root.style.setProperty('--eg-right-s',  sRight.toFixed(3));
-root.style.setProperty('--eg-top-o',    oTop.toFixed(3));
-root.style.setProperty('--eg-top-s',    sTop.toFixed(3));
+      // ~35% stärkeres Mapping auf Opacity/Scale der Ränder
+      const s = 0.85, a = 1 - s
+      oBottom = s*oBottom + a*Math.min(1.00, bass*2.30)
+      oLeft   = s*oLeft   + a*Math.min(0.95, mid*2.05)
+      oRight  = s*oRight  + a*Math.min(0.95, mid*2.05)
+      oTop    = s*oTop    + a*Math.min(0.90, treb*1.90)
 
-      })();
+      sBottom = s*sBottom + a*(1 + bass*1.08)
+      sLeft   = s*sLeft   + a*(1 + mid*0.81)
+      sRight  = s*sRight  + a*(1 + mid*0.81)
+      sTop    = s*sTop    + a*(1 + treb*0.68)
+
+      root.style.setProperty('--eg-bottom-o', oBottom.toFixed(3))
+      root.style.setProperty('--eg-bottom-s', sBottom.toFixed(3))
+      root.style.setProperty('--eg-left-o',   oLeft.toFixed(3))
+      root.style.setProperty('--eg-left-s',   sLeft.toFixed(3))
+      root.style.setProperty('--eg-right-o',  oRight.toFixed(3))
+      root.style.setProperty('--eg-right-s',  sRight.toFixed(3))
+      root.style.setProperty('--eg-top-o',    oTop.toFixed(3))
+      root.style.setProperty('--eg-top-s',    sTop.toFixed(3))
+    })()
+  }
+
+  // Gate / Audio-Steuerung
+  async function enterSite(){
+    card.classList.remove('blurred')
+    gate.classList.add('hidden')
+    setTimeout(()=>{ gate.style.display='none' }, 380)
+    try{ resumeCtx(); await audio.play() }catch(e){ audio.play().catch(()=>{}) }
+  }
+  gate.addEventListener('click', enterSite)
+  gate.addEventListener('keydown', e=>{
+    if(e.key==='Enter'||e.key===' '){ e.preventDefault(); enterSite() }
+  })
+  toggle.addEventListener('click', ()=>{
+    if(audio.paused){ resumeCtx(); audio.play().catch(()=>{}) }
+    else { audio.muted=!audio.muted }
+    toggle.textContent=(audio.muted||audio.paused)?'🔇':'🔊'
+    toggle.setAttribute('aria-pressed', String(!audio.muted))
+  })
+  vol.addEventListener('input', e=>{ audio.volume=parseFloat(e.target.value||'0.1') })
+  audio.addEventListener('play', resumeCtx, {once:true})
+
+  // Hintergrundnetz
+  const bg=document.getElementById('bg')
+  const bctx=bg.getContext('2d')
+  const BDPR=Math.max(1,window.devicePixelRatio||1)
+  let W=0,H=0,nodes=[],maxDist=140,nodeCount=0
+  function sizeBg(){
+    W=window.innerWidth; H=window.innerHeight
+    bg.width=Math.floor(W*BDPR); bg.height=Math.floor(H*BDPR)
+    bctx.setTransform(BDPR,0,0,BDPR,0,0)
+    nodeCount=Math.min(120,Math.max(40,Math.floor((W*H)/17000)))
+    maxDist=Math.max(110,Math.min(190,Math.sqrt(W*H)/10))
+    initNodes()
+  }
+  window.addEventListener('resize',sizeBg); sizeBg()
+  function rand(a,b){ return a+Math.random()*(b-a) }
+  function initNodes(){ nodes=[]; for(let i=0;i<nodeCount;i++) nodes.push({x:rand(0,W),y:rand(0,H),vx:rand(-0.32,0.32),vy:rand(-0.32,0.32),r:rand(1.2,2.1)}) }
+  function step(){
+    for(const n of nodes){
+      n.x+=n.vx; n.y+=n.vy
+      if(n.x<-20)n.x=W+20; if(n.x>W+20)n.x=-20
+      if(n.y<-20)n.y=H+20; if(n.y>H+20)n.y=-20
     }
+  }
+  function drawWeb(){
+    bctx.clearRect(0,0,W,H)
+    for(let i=0;i<nodes.length;i++){
+      const a=nodes[i]
+      for(let j=i+1;j<nodes.length;j++){
+        const b=nodes[j]
+        const dx=a.x-b.x, dy=a.y-b.y
+        const d2=dx*dx+dy*dy, md2=maxDist*maxDist
+        if(d2<md2){
+          const t=1-(d2/md2)
+          bctx.strokeStyle=`rgba(88,101,242,${0.45*t})`
+          bctx.lineWidth=1
+          bctx.beginPath(); bctx.moveTo(a.x,a.y); bctx.lineTo(b.x,b.y); bctx.stroke()
+        }
+      }
+    }
+    for(const n of nodes){
+      bctx.fillStyle='rgba(0,229,255,0.65)'
+      bctx.beginPath(); bctx.arc(n.x,n.y,n.r,0,Math.PI*2); bctx.fill()
+    }
+  }
+  ;(function loop(){ step(); drawWeb(); requestAnimationFrame(loop) })()
 
-    async function enterSite(){card.classList.remove('blurred');gate.classList.add('hidden');setTimeout(()=>gate.style.display='none',380);try{resumeCtx();await audio.play()}catch(e){audio.play().catch(()=>{})}}
-    gate.addEventListener('click',enterSite)
-    gate.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();enterSite()}})
-    toggle.addEventListener('click',()=>{if(audio.paused){resumeCtx();audio.play().catch(()=>{})}else{audio.muted=!audio.muted}toggle.textContent=(audio.muted||audio.paused)?'🔇':'🔊';toggle.setAttribute('aria-pressed',String(!audio.muted))})
-    vol.addEventListener('input',e=>{audio.volume=parseFloat(e.target.value||'0.1')})
-    audio.addEventListener('play',resumeCtx,{once:true})
+  // Cursor Glow
+  const glow=document.getElementById('cursorGlow')
+  let gx=-9999,gy=-9999,tx=gx,ty=gy
+  document.addEventListener('pointermove',e=>{ tx=e.clientX-glow.offsetWidth/2; ty=e.clientY-glow.offsetHeight/2 })
+  document.addEventListener('pointerenter',()=> glow.style.opacity=.9)
+  document.addEventListener('pointerleave',()=> glow.style.opacity=0)
+  ;(function follow(){ gx+=(tx-gx)*0.15; gy+=(ty-gy)*0.15; glow.style.transform=`translate3d(${gx}px,${gy}px,0)`; requestAnimationFrame(follow) })()
 
-    const bg=document.getElementById('bg')
-    const bctx=bg.getContext('2d')
-    const BDPR=Math.max(1,window.devicePixelRatio||1)
-    let W=0,H=0,nodes=[],maxDist=140,nodeCount=0
-    function sizeBg(){W=window.innerWidth;H=window.innerHeight;bg.width=Math.floor(W*BDPR);bg.height=Math.floor(H*BDPR);bctx.setTransform(BDPR,0,0,BDPR,0,0);nodeCount=Math.min(120,Math.max(40,Math.floor((W*H)/17000)));maxDist=Math.max(110,Math.min(190,Math.sqrt(W*H)/10));initNodes()}
-    window.addEventListener('resize',sizeBg);sizeBg()
-    function rand(a,b){return a+Math.random()*(b-a)}
-    function initNodes(){nodes=[];for(let i=0;i<nodeCount;i++)nodes.push({x:rand(0,W),y:rand(0,H),vx:rand(-0.32,0.32),vy:rand(-0.32,0.32),r:rand(1.2,2.1)})}
-    function step(){for(const n of nodes){n.x+=n.vx;n.y+=n.vy;if(n.x<-20)n.x=W+20;if(n.x>W+20)n.x=-20;if(n.y<-20)n.y=H+20;if(n.y>H+20)n.y=-20}}
-    function drawWeb(){bctx.clearRect(0,0,W,H);for(let i=0;i<nodes.length;i++){const a=nodes[i];for(let j=i+1;j<nodes.length;j++){const b=nodes[j];const dx=a.x-b.x,dy=a.y-b.y;const d2=dx*dx+dy*dy,md2=maxDist*maxDist;if(d2<md2){const t=1-(d2/md2);bctx.strokeStyle=`rgba(88,101,242,${0.45*t})`;bctx.lineWidth=1;bctx.beginPath();bctx.moveTo(a.x,a.y);bctx.lineTo(b.x,b.y);bctx.stroke()}}}for(const n of nodes){bctx.fillStyle='rgba(0,229,255,0.65)';bctx.beginPath();bctx.arc(n.x,n.y,n.r,0,Math.PI*2);bctx.fill()}}
-    (function loop(){step();drawWeb();requestAnimationFrame(loop)})()
+  // Stimmung
+  const clamp=(v,min,max)=>Math.max(min,Math.min(max,v))
+  const moodToEmoji=v=>{ if(v<=10)return'💀'; if(v<=25)return'😭'; if(v<=40)return'🙁'; if(v<=60)return'😐'; if(v<=80)return'🙂'; if(v<=95)return'😄'; return'🤩' }
+  function setMood(v){
+    v=clamp(v,0,100)
+    moodEmoji.textContent=moodToEmoji(v)
+    moodValue.textContent=v
+    moodRange.value=v
+    const t=v/100
+    moodNub.style.background=`linear-gradient(180deg, rgba(0,229,255,${1-t*.4}), rgba(88,101,242,${.8+.2*t}))`
+  }
+  async function loadConfigAndInit(){
+    try{
+      const res=await fetch('config.json?ts='+Date.now(),{cache:'no-store'})
+      if(res.ok){
+        const cfg=await res.json()
+        if(typeof cfg.mood==='number') setMood(cfg.mood)
+        if(cfg.lockMood){
+          moodRange.disabled=true
+          moodRange.setAttribute('aria-disabled','true')
+          moodLock.classList.add('show')
+        }
+      }else{
+        const fallback=+localStorage.getItem('kamyllan_mood')||70
+        setMood(fallback)
+      }
+    }catch(_){
+      const fallback=+localStorage.getItem('kamyllan_mood')||70
+      setMood(fallback)
+    }
+  }
+  loadConfigAndInit()
+  moodRange.addEventListener('input',e=>{
+    if(moodRange.disabled) return
+    const v=+e.target.value||0
+    setMood(v); localStorage.setItem('kamyllan_mood',v)
+  })
 
-    const glow=document.getElementById('cursorGlow')
-    let gx=-9999,gy=-9999,tx=gx,ty=gy
-    document.addEventListener('pointermove',e=>{tx=e.clientX-glow.offsetWidth/2;ty=e.clientY-glow.offsetHeight/2})
-    document.addEventListener('pointerenter',()=>glow.style.opacity=.9)
-    document.addEventListener('pointerleave',()=>glow.style.opacity=0)
-    ;(function follow(){gx+=(tx-gx)*0.15;gy+=(ty-gy)*0.15;glow.style.transform=`translate3d(${gx}px,${gy}px,0)`;requestAnimationFrame(follow)})()
+  let moodOpen=false
+  function openMood(){
+    if(moodOpen) return
+    moodOpen=true
+    moodBackdrop.classList.add('show')
+    moodPanel.classList.remove('hide'); void moodPanel.offsetWidth; moodPanel.classList.add('show')
+  }
+  function closeMood(){
+    if(!moodOpen) return
+    moodOpen=false
+    moodBackdrop.classList.remove('show')
+    moodPanel.classList.remove('show'); moodPanel.classList.add('hide')
+  }
+  moodPanel.addEventListener('animationend',e=>{ if(e.animationName==='liftOut') moodPanel.classList.remove('hide') })
+  moodNub.addEventListener('click',()=> moodOpen?closeMood():openMood())
+  moodBackdrop.addEventListener('click',closeMood)
+  window.addEventListener('keydown',e=>{ if(e.key==='Escape') closeMood() })
 
-    const clamp=(v,min,max)=>Math.max(min,Math.min(max,v))
-    const moodToEmoji=v=>{if(v<=10)return'💀';if(v<=25)return'😭';if(v<=40)return'🙁';if(v<=60)return'😐';if(v<=80)return'🙂';if(v<=95)return'😄';return'🤩'}
-    function setMood(v){v=clamp(v,0,100);moodEmoji.textContent=moodToEmoji(v);moodValue.textContent=v;moodRange.value=v;const t=v/100;moodNub.style.background=`linear-gradient(180deg, rgba(0,229,255,${1-t*.4}), rgba(88,101,242,${.8+.2*t}))`}
-    async function loadConfigAndInit(){try{const res=await fetch('config.json?ts='+Date.now(),{cache:'no-store'});if(res.ok){const cfg=await res.json();if(typeof cfg.mood==='number')setMood(cfg.mood);if(cfg.lockMood){moodRange.disabled=true;moodRange.setAttribute('aria-disabled','true');moodLock.classList.add('show')}}else{const fallback=+localStorage.getItem('kamyllan_mood')||70;setMood(fallback)}}catch(_){const fallback=+localStorage.getItem('kamyllan_mood')||70;setMood(fallback)}}
-    loadConfigAndInit()
-    moodRange.addEventListener('input',e=>{if(moodRange.disabled)return;const v=+e.target.value||0;setMood(v);localStorage.setItem('kamyllan_mood',v)})
-
-    let moodOpen=false
-    function openMood(){if(moodOpen)return;moodOpen=true;moodBackdrop.classList.add('show');moodPanel.classList.remove('hide');void moodPanel.offsetWidth;moodPanel.classList.add('show')}
-    function closeMood(){if(!moodOpen)return;moodOpen=false;moodBackdrop.classList.remove('show');moodPanel.classList.remove('show');moodPanel.classList.add('hide')}
-    moodPanel.addEventListener('animationend',e=>{if(e.animationName==='liftOut')moodPanel.classList.remove('hide')})
-    moodNub.addEventListener('click',()=>moodOpen?closeMood():openMood())
-    moodBackdrop.addEventListener('click',closeMood)
-    window.addEventListener('keydown',e=>{if(e.key==='Escape')closeMood()})
-  </script>
+  /* ============================
+     Easter Egg: Avatar 5x klick
+     => verstecktes Code-Panel öffnen
+     ============================ */
+  ;(function(){
+    var avatar = document.querySelector('.avatar')
+    if(!avatar) return
+    var taps = 0, timer = null
+    function reset(){ taps=0; if(timer){ clearTimeout(timer); timer=null } }
+    avatar.addEventListener('click', function(){
+      taps++
+      if(!timer) timer = setTimeout(reset, 2000) // 2s Fenster
+      if(taps >= 5){
+        reset()
+        var trigger = document.getElementById('z0') // unsichtbarer Button
+        if(trigger) trigger.click()
+        else {
+          // Fallback: Panel direkt öffnen, falls Scriptreihenfolge anders
+          var ZB=document.getElementById('zB'), ZP=document.getElementById('zP')
+          if(ZB && ZP){
+            ZB.classList.add('show')
+            ZP.classList.remove('hide'); void ZP.offsetWidth; ZP.classList.add('show')
+          }
+        }
+      }
+    })
+  })()
+</script>
 
   <!-- === Code Gate Trigger + Panel === -->
-  <button id="z0" title="Code eingeben" aria-label="Code eingeben">🔐</button>
   <div id="zB"></div>
-  <div id="zP" role="dialog" aria-modal="true" aria-labelledby="zT">
+   <div id="zP" role="dialog" aria-modal="true" aria-labelledby="zT">
     <div id="zT" style="font-weight:700;font-size:16px;">Zugangscode</div>
     <div class="zR">
       <input id="zI" type="password" inputmode="numeric" maxlength="6" pattern="\d{6}" placeholder="••••••" autocomplete="off" />
@@ -405,7 +567,10 @@ root.style.setProperty('--eg-top-s',    sTop.toFixed(3));
             else{ ZM.style.color='#ff6166'; ZM.textContent='Falscher Code'; ZG.disabled=false; ZI.disabled=false; ZI.focus(); } })
           .catch(function(){ ZM.style.color='#ff6166'; ZM.textContent='Fehler'; ZG.disabled=false; ZI.disabled=false; });
         };
-    Z0.addEventListener('click', function(){ZP.classList.contains('show')?C():O()});
+if (Z0) {
+  Z0.addEventListener('click', function(){ ZP.classList.contains('show') ? C() : O(); });
+}
+
     ZB.addEventListener('click', C);
     d.addEventListener('keydown', function(e){ if(e.key==='Escape') C(); });
     ZG.addEventListener('click', F);
