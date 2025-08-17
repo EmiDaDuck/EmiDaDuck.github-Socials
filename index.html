@@ -109,51 +109,53 @@
     #zG:active{transform:scale(.98)}
     #zM{margin-top:8px;font-size:13px;color:#ff6166;min-height:1.1em}
 
-    /* === Audio-reactive edge glows (top/right/bottom/left) === */
-    :root{
-      --eg-top-o:0; --eg-right-o:0; --eg-bottom-o:0; --eg-left-o:0;
-      --eg-top-s:1; --eg-right-s:1; --eg-bottom-s:1; --eg-left-s:1;
-    }
-    .edgeGlow{
-      position:fixed; z-index:0; pointer-events:none; mix-blend-mode:screen;
-      filter:blur(50px);
-    }
-    /* Top: treble */
-    #egTop{
-      left:-8vw; right:-8vw; top:-22vmin; height:36vmin;
-      opacity:var(--eg-top-o); transform:scaleY(var(--eg-top-s));
-      background:linear-gradient(to bottom,
-        rgba(0,229,255,.22) 0%,
-        rgba(88,101,242,.20) 45%,
-        rgba(88,101,242,0) 75%);
-    }
-    /* Bottom: bass */
-    #egBottom{
-      left:-8vw; right:-8vw; bottom:-22vmin; height:36vmin;
-      opacity:var(--eg-bottom-o); transform:scaleY(var(--eg-bottom-s));
-      background:linear-gradient(to top,
-        rgba(0,229,255,.22) 0%,
-        rgba(88,101,242,.20) 45%,
-        rgba(88,101,242,0) 75%);
-    }
-    /* Left: mids */
-    #egLeft{
-      top:-12vh; bottom:-12vh; left:-22vmin; width:36vmin;
-      opacity:var(--eg-left-o); transform:scaleX(var(--eg-left-s));
-      background:linear-gradient(to right,
-        rgba(0,229,255,.22) 0%,
-        rgba(88,101,242,.20) 45%,
-        rgba(88,101,242,0) 75%);
-    }
-    /* Right: mids */
-    #egRight{
-      top:-12vh; bottom:-12vh; right:-22vmin; width:36vmin;
-      opacity:var(--eg-right-o); transform:scaleX(var(--eg-right-s));
-      background:linear-gradient(to left,
-        rgba(0,229,255,.22) 0%,
-        rgba(88,101,242,.20) 45%,
-        rgba(88,101,242,0) 75%);
-    }
+/* === Audio-reactive edge glows (top/right/bottom/left) === */
+:root{
+  --eg-top-o:0; --eg-right-o:0; --eg-bottom-o:0; --eg-left-o:0;
+  --eg-top-s:1; --eg-right-s:1; --eg-bottom-s:1; --eg-left-s:1;
+}
+.edgeGlow{
+  position:fixed; z-index:0; pointer-events:none; mix-blend-mode:screen;
+  /* was 50px -> tighter = brighter */
+  filter:blur(40px);
+}
+/* Top: treble */
+#egTop{
+  left:-8vw; right:-8vw; top:-22vmin; height:36vmin;
+  opacity:var(--eg-top-o); transform:scaleY(var(--eg-top-s));
+  background:linear-gradient(to bottom,
+    rgba(0,229,255,.30) 0%,
+    rgba(88,101,242,.27) 45%,
+    rgba(88,101,242,0) 75%);
+}
+/* Bottom: bass */
+#egBottom{
+  left:-8vw; right:-8vw; bottom:-22vmin; height:36vmin;
+  opacity:var(--eg-bottom-o); transform:scaleY(var(--eg-bottom-s));
+  background:linear-gradient(to top,
+    rgba(0,229,255,.30) 0%,
+    rgba(88,101,242,.27) 45%,
+    rgba(88,101,242,0) 75%);
+}
+/* Left: mids */
+#egLeft{
+  top:-12vh; bottom:-12vh; left:-22vmin; width:36vmin;
+  opacity:var(--eg-left-o); transform:scaleX(var(--eg-left-s));
+  background:linear-gradient(to right,
+    rgba(0,229,255,.30) 0%,
+    rgba(88,101,242,.27) 45%,
+    rgba(88,101,242,0) 75%);
+}
+/* Right: mids */
+#egRight{
+  top:-12vh; bottom:-12vh; right:-22vmin; width:36vmin;
+  opacity:var(--eg-right-o); transform:scaleX(var(--eg-right-s));
+  background:linear-gradient(to left,
+    rgba(0,229,255,.30) 0%,
+    rgba(88,101,242,.27) 45%,
+    rgba(88,101,242,0) 75%);
+}
+
   </style>
 </head>
 <body>
@@ -305,26 +307,30 @@
         treb/= (highW*255);
 
         // Smooth + map to opacity/scale
-        const s=0.85, a=1-s;
-        oBottom = s*oBottom + a*Math.min(0.9, bass*1.7);
-        sBottom = s*sBottom + a*(1 + bass*0.8);
+// Smooth + map to opacity/scale (≈35% stronger)
+const s = 0.85, a = 1 - s;
 
-        oLeft   = s*oLeft   + a*Math.min(0.8, mid*1.5);
-        sLeft   = s*sLeft   + a*(1 + mid*0.6);
-        oRight  = s*oRight  + a*Math.min(0.8, mid*1.5);
-        sRight  = s*sRight  + a*(1 + mid*0.6);
+// opacity caps slightly raised so it can breathe
+oBottom = s*oBottom + a*Math.min(1.00, bass*2.30); // was 1.7
+oLeft   = s*oLeft   + a*Math.min(0.95, mid*2.05);  // was 1.5
+oRight  = s*oRight  + a*Math.min(0.95, mid*2.05);  // was 1.5
+oTop    = s*oTop    + a*Math.min(0.90, treb*1.90); // was 1.4
 
-        oTop    = s*oTop    + a*Math.min(0.7, treb*1.4);
-        sTop    = s*sTop    + a*(1 + treb*0.5);
+// scale reacts stronger too
+sBottom = s*sBottom + a*(1 + bass*1.08); // was 0.8
+sLeft   = s*sLeft   + a*(1 + mid*0.81);  // was 0.6
+sRight  = s*sRight  + a*(1 + mid*0.81);  // was 0.6
+sTop    = s*sTop    + a*(1 + treb*0.68); // was 0.5
 
-        root.style.setProperty('--eg-bottom-o', oBottom.toFixed(3));
-        root.style.setProperty('--eg-bottom-s', sBottom.toFixed(3));
-        root.style.setProperty('--eg-left-o',   oLeft.toFixed(3));
-        root.style.setProperty('--eg-left-s',   sLeft.toFixed(3));
-        root.style.setProperty('--eg-right-o',  oRight.toFixed(3));
-        root.style.setProperty('--eg-right-s',  sRight.toFixed(3));
-        root.style.setProperty('--eg-top-o',    oTop.toFixed(3));
-        root.style.setProperty('--eg-top-s',    sTop.toFixed(3));
+root.style.setProperty('--eg-bottom-o', oBottom.toFixed(3));
+root.style.setProperty('--eg-bottom-s', sBottom.toFixed(3));
+root.style.setProperty('--eg-left-o',   oLeft.toFixed(3));
+root.style.setProperty('--eg-left-s',   sLeft.toFixed(3));
+root.style.setProperty('--eg-right-o',  oRight.toFixed(3));
+root.style.setProperty('--eg-right-s',  sRight.toFixed(3));
+root.style.setProperty('--eg-top-o',    oTop.toFixed(3));
+root.style.setProperty('--eg-top-s',    sTop.toFixed(3));
+
       })();
     }
 
