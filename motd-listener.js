@@ -1,3 +1,4 @@
+/*! MOTD Listener v1.1 (Cache-bust for GitHub Pages/RAW) */
 (function(){
   function el(tag, cls, html){ const e=document.createElement(tag); if(cls) e.className=cls; if(html!=null) e.innerHTML=html; return e }
   function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m])) }
@@ -19,7 +20,7 @@
   function init(root){
     injectCSS()
     const src = root.getAttribute('data-json') || 'config.json'
-    const key = root.getAttribute('data-key') || 'motd'   // dot-path supported later if needed
+    const key = root.getAttribute('data-key') || 'motd'
     const interval = Math.max(1, parseInt(root.getAttribute('data-interval')||'1',10) || 1)
 
     const box = el('section','motd-wrap')
@@ -29,7 +30,7 @@
     box.append(status, meta, pre)
     root.append(box)
 
-    let etag=null, lastModified=null, lastValue=null, timer=null, fetching=false
+    let lastValue=null, timer=null, fetching=false
 
     document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) tick(true) })
     tick(true)
@@ -38,33 +39,24 @@
       if(fetching) return
       fetching = true
       try{
-        const url = new URL(src, location.href).href
-        const headers = { 'Cache-Control':'no-cache', 'Pragma':'no-cache' }
-        if(etag) headers['If-None-Match']=etag
-        if(lastModified) headers['If-Modified-Since']=lastModified
+        // Cache-bust: unique query each poll to defeat CDN TTL
+        const urlObj = new URL(src, location.href)
+        urlObj.searchParams.set('_', String(Date.now()))
+        const url = urlObj.href
 
-        const res = await fetch(url, { headers, cache:'no-store', keepalive:true })
-        if(res.status===200){
-          etag = res.headers.get('ETag'); lastModified = res.headers.get('Last-Modified')
+        const res = await fetch(url, { cache:'no-store', credentials:'omit', mode:'cors' })
+        if(res.ok){
           let text = await res.text()
-          // Try remove BOM
           if(text.charCodeAt(0)===0xFEFF){ text = text.slice(1) }
           let obj=null
           try{ obj = JSON.parse(text) }catch(e){
             status.textContent = 'JSON parse error'; meta.textContent=''; pre.textContent=text
             schedule(immediate); fetching=false; return
           }
-          // Simple key lookup (support shallow dot path: "a.b.c")
           let val=obj, path=key.split('.')
-          for(const k of path){ if(val && Object.prototype.hasOwnProperty.call(val, k)){ val=val[k] } else { val=null; break } }
+          for(const k of path){ if(val && Object.prototype.hasOwnProperty.call(val,k)){ val=val[k] } else { val=null; break } }
           const motd = (val==null ? '' : String(val))
-
-          if(motd !== lastValue){
-            lastValue = motd
-            render(motd, obj)
-          }
-          status.textContent = 'Live'
-        }else if(res.status===304){
+          if(motd !== lastValue){ lastValue = motd; render(motd, obj) }
           status.textContent = 'Live'
         }else{
           status.textContent = 'HTTP '+res.status
@@ -76,13 +68,11 @@
         schedule(immediate)
       }
     }
-
     function schedule(immediate){
       clearTimeout(timer)
       const wait = immediate ? 0 : interval*1000
       timer = setTimeout(()=>tick(false), wait)
     }
-
     function render(motd, full){
       const utc = full && (full.UTC || full.updatedAt || full.updated_at)
       meta.innerHTML = `<span class="motd-badge">MOTD</span>${utc ? escapeHtml(utc) : ''}`
@@ -90,13 +80,6 @@
       box.classList.remove('motd-pulse'); void box.offsetWidth; box.classList.add('motd-pulse')
     }
   }
-
-  window.MotdListener = { mount: (sel)=>{
-    const nodes = typeof sel==='string' ? document.querySelectorAll(sel) : [sel]
-    nodes.forEach(n=> n && init(n))
-  }}
-
-  document.addEventListener('DOMContentLoaded', ()=>{
-    document.querySelectorAll('[data-motd]').forEach(init)
-  })
+  window.MotdListener = { mount: (sel)=>{ (typeof sel==='string'?document.querySelectorAll(sel):[sel]).forEach(n=>n&&init(n)) } }
+  document.addEventListener('DOMContentLoaded', ()=>{ document.querySelectorAll('[data-motd]').forEach(init) })
 })();

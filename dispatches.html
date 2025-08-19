@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dispatches • Live</title>
+  <meta name="theme-color" content="#0f1115">
+  <style>
+    :root{--fg:#fff;--muted:#b7bcc5;--accent:#5865f2;--cyan:#00e5ff;--bg:#0f1115}
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;color:var(--fg);background:var(--bg);
+      font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,"Noto Sans","Helvetica Neue",sans-serif}
+    .wrap{min-height:100%;display:grid;place-items:center;padding:40px 16px}
+    .card{width:100%;max-width:900px;border-radius:18px;padding:22px 22px 26px;
+      background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));
+      border:1px solid rgba(255,255,255,.07);backdrop-filter:blur(6px);
+      box-shadow:0 10px 30px rgba(0,0,0,.35),inset 0 0 0 1px rgba(255,255,255,.02)}
+    h1{margin:0 0 10px;font-size:clamp(22px,4.5vw,30px)}
+    .muted{color:var(--muted)}
+    .row{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;align-items:flex-end}
+    .row>*{flex:1 1 260px}
+    .input{width:100%;padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.12);
+      background:#1a1f28;color:#fff}
+    .btn{display:inline-block;padding:10px 12px;border-radius:12px;text-decoration:none;color:#fff;border:0;cursor:pointer;
+      background:linear-gradient(180deg,var(--accent),#4752c4);box-shadow:0 6px 18px rgba(88,101,242,.35)}
+    .btn.secondary{background:#22262f;border:1px solid rgba(255,255,255,.08);box-shadow:none}
+    .status{margin-top:8px;color:var(--muted)}
+    .feed{margin-top:16px;display:grid;gap:12px}
+    .item{padding:14px;border-radius:14px;background:#121721;border:1px solid rgba(255,255,255,.08)}
+    .meta{font-size:12px;color:var(--muted);margin-bottom:6px}
+    .badge{display:inline-block;padding:4px 8px;border-radius:999px;background:#222734;border:1px solid rgba(255,255,255,.08);font-size:12px}
+    .title{margin:0 0 6px;font-size:16px}
+    .body{margin:0;white-space:pre-wrap;word-break:break-word;font-family:ui-monospace,Consolas,Menlo,monospace}
+    .pulse{animation:pulse 720ms ease-out 1}
+    @keyframes pulse{
+      0%{box-shadow:0 0 0 0 rgba(0,229,255,.45)}
+      100%{box-shadow:0 0 0 28px rgba(0,229,255,0)}
+    }
+    #banner{position:fixed;left:50%;bottom:18px;transform:translateX(-50%) translateY(120%);
+      background:#ef4444;color:#fff;border-radius:12px;padding:10px 14px;box-shadow:0 14px 30px rgba(0,0,0,.45);
+      z-index:5;transition:transform 260ms cubic-bezier(.2,.8,.2,1)}
+    #banner.show{transform:translateX(-50%) translateY(0)}
+    #soundBtn{position:fixed;right:18px;bottom:18px;z-index:6}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section id="card" class="card">
+      <h1>Dispatches</h1>
+      <div class="muted">Live aus <code>config.json</code> → Feld <code>motd</code> (GitHub)</div>
+
+      <div class="row">
+        <div>
+          <label for="src" class="muted">Quelle (JSON)</label>
+          <input id="src" class="input" type="url"
+                 value="https://raw.githubusercontent.com/EmiDaDuck/EmiDaDuck.github-Socials/main/config.json"
+                 placeholder="Absolute RAW-URL oder relative config.json" />
+        </div>
+        <div style="max-width:120px">
+          <label for="interval" class="muted">Poll (s)</label>
+          <input id="interval" class="input" type="number" min="1" max="60" value="1" />
+        </div>
+        <div style="flex:0 0 auto">
+          <button id="start" class="btn">Start</button>
+          <button id="copy" class="btn secondary">Copy</button>
+        </div>
+      </div>
+
+      <div id="status" class="status">Idle.</div>
+      <div id="feed" class="feed"></div>
+    </section>
+  </main>
+
+  <button id="soundBtn" class="btn" title="Enable sound">🔊 Enable sound</button>
+  <div id="banner" role="status" aria-live="polite">Neuer Dispatch</div>
+
+  <script>
+    const $ = id => document.getElementById(id)
+    const srcIn = $('src'), intervalIn = $('interval'), startBtn = $('start'), copyBtn = $('copy')
+    const statusEl = $('status'), feedEl = $('feed'), card = $('card'), banner = $('banner'), soundBtn = $('soundBtn')
+
+    // Sound (optional)
+    let audioCtx=null, soundOn=false
+    soundBtn.addEventListener('click', ()=>{
+      if(!audioCtx){ try{ audioCtx = new (window.AudioContext||window.webkitAudioContext)() }catch(e){} }
+      if(audioCtx){ audioCtx.resume && audioCtx.resume(); soundOn=true; soundBtn.textContent='🔊 Sound on' }
+    })
+    function beep(){
+      if(!soundOn || !audioCtx) return
+      try{
+        const o = audioCtx.createOscillator(), g = audioCtx.createGain()
+        o.type='triangle'; o.frequency.value=880; g.gain.value=0.0026
+        o.connect(g).connect(audioCtx.destination); o.start()
+        setTimeout(()=>o.stop(), 180)
+        setTimeout(()=>{ const o2=audioCtx.createOscillator(), g2=audioCtx.createGain()
+          o2.type='square'; o2.frequency.value=1320; g2.gain.value=0.0022
+          o2.connect(g2).connect(audioCtx.destination); o2.start(); setTimeout(()=>o2.stop(), 140)
+        }, 200)
+      }catch(_){}
+    }
+
+    // State
+    let etag=null, lastModified=null, lastText=null, lastId=null, timer=null, running=false, fetching=false
+    const LIMIT=30
+
+    // Restore prefs
+    const q = new URLSearchParams(location.search)
+    const qsSrc = q.get('src')
+    if(qsSrc) srcIn.value = qsSrc
+    srcIn.value = localStorage.getItem('dispatch_src') || srcIn.value
+    intervalIn.value = localStorage.getItem('dispatch_interval') || intervalIn.value
+
+    startBtn.addEventListener('click', start)
+    intervalIn.addEventListener('change', ()=>localStorage.setItem('dispatch_interval', String(Math.max(1, +intervalIn.value||1))))
+    srcIn.addEventListener('change', ()=>localStorage.setItem('dispatch_src', srcIn.value.trim()))
+    copyBtn.addEventListener('click', ()=>{
+      const first = feedEl.querySelector('.item pre'); if(!first) return
+      navigator.clipboard.writeText(first.textContent||'')
+      showBanner('Kopiert')
+    })
+
+    // Auto start
+    start()
+    document.addEventListener('visibilitychange', ()=>{ if(!document.hidden && running) tick(true) })
+
+    function start(){
+      running=true; clearTimeout(timer)
+      etag = lastModified = null
+      statusEl.textContent='Listening…'
+      tick(true)
+    }
+
+    async function tick(immediate){
+      if(!running || fetching) return
+      fetching = true
+      try{
+        const uo = new URL(srcIn.value.trim() || 'config.json', location.href); uo.searchParams.set('_', String(Date.now())); const url = uo.href
+        const headers = { 'Cache-Control':'no-cache', 'Pragma':'no-cache' }
+        if(etag) headers['If-None-Match']=etag
+        if(lastModified) headers['If-Modified-Since']=lastModified
+
+        const res = await fetch(url, { headers, cache:'no-store', keepalive:true, credentials:'omit', mode:'cors' })
+        if(res.status===200){
+          etag = res.headers.get('ETag'); lastModified = res.headers.get('Last-Modified')
+          let text = await res.text()
+          if(text.charCodeAt(0)===0xFEFF) text = text.slice(1) // strip BOM
+          let obj=null
+          try{ obj = JSON.parse(text) }catch(e){
+            statusEl.textContent='JSON-Fehler'; renderItem({id:'—', utc:isoUtc(), title:'Parse Error', body:text})
+            schedule(immediate); fetching=false; return
+          }
+          const motd = typeof obj.motd==='string' ? obj.motd : (obj && obj.motd!=null ? String(obj.motd) : '')
+          if(motd !== lastText){
+            lastText = motd
+            const parsed = parsePayload(motd, obj)
+            onNew(parsed)
+          }
+          statusEl.textContent='Live'
+        }else if(res.status===304){
+          statusEl.textContent='Live'
+        }else{
+          statusEl.textContent='HTTP '+res.status
+        }
+      }catch(e){
+        statusEl.textContent = 'Error: ' + (e && e.message || e)
+      }finally{
+        fetching=false
+        schedule(immediate)
+      }
+    }
+    function schedule(immediate){
+      clearTimeout(timer)
+      const wait = immediate ? 0 : Math.max(1, +intervalIn.value || 1) * 1000
+      timer = setTimeout(()=>tick(false), wait)
+    }
+
+    function parsePayload(text, fullObj){
+      // Allow optional header lines inside motd (e.g., "MSG-ID:123\nUTC:2025-08-19Z\nMessage")
+      const lines = String(text||'').split(/\\r?\\n/)
+      let id=null, utc=null, bodyStart=0
+      for(let i=0;i<Math.min(4,lines.length);i++){
+        const L=lines[i]
+        if(/^MSG-ID\\s*:/.test(L)){ id=(L.split(':')[1]||'').trim(); bodyStart=i+1 }
+        if(/^UTC\\s*:/.test(L)){ utc=L.split(':').slice(1).join(':').trim(); bodyStart=i+1 }
+      }
+      const body = lines.slice(bodyStart).join('\\n').trim()
+      const title = body.split('\\n')[0]?.slice(0,80) || (body ? 'Dispatch' : '—')
+      if(!id){ // fall back to synthetic ID from timestamp+length
+        id = `${Date.now()}-${body.length}`
+      }
+      if(!utc){
+        utc = fullObj && (fullObj.UTC || fullObj.updatedAt || fullObj.updated_at) || isoUtc()
+      }
+      return { id, utc, title, body }
+    }
+
+    function onNew(p){
+      if(p.id && p.id===lastId) return; lastId = p.id
+      renderItem(p, true)
+      showBanner('Neuer Dispatch')
+      beep()
+    }
+
+    function renderItem(p, toTop){
+      const item = document.createElement('article')
+      item.className='item'
+      item.innerHTML = `
+        <div class="meta"><span class="badge">MSG ${esc(p.id||'—')}</span> ${p.utc ? `<span>${esc(p.utc)}</span>`:''}</div>
+        <h3 class="title">${esc(p.title||'Dispatch')}</h3>
+        <pre class="body">${esc(p.body||'')}</pre>`
+      if(toTop) feedEl.prepend(item); else feedEl.appendChild(item)
+      while(feedEl.children.length>LIMIT) feedEl.lastChild.remove()
+      card.classList.remove('pulse'); void card.offsetWidth; card.classList.add('pulse')
+    }
+
+    function showBanner(txt){
+      if(txt) banner.textContent = txt
+      banner.classList.add('show'); setTimeout(()=>banner.classList.remove('show'), 1600)
+    }
+    function esc(s){ return (s||'').replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',\"'\":'&#39;' }[m])) }
+    function isoUtc(){ return new Date().toISOString().replace('T',' ').replace('Z',' UTC') }
+  </script>
+</body>
+</html>
