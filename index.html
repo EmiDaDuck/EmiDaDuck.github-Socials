@@ -40,48 +40,51 @@
     .avatarWrap{position:relative;width:148px;height:148px;margin:6px auto 16px;border-radius:50%}
     .avatar{position:relative;z-index:2;width:100%;height:100%;border-radius:50%;object-fit:cover;box-shadow:inset 0 0 26px rgba(0,229,255,.18),inset 0 0 36px rgba(88,101,242,.18),0 0 0 3px rgba(255,255,255,.04),0 0 40px rgba(88,101,242,.20)}
     .avatarWrap::after{content:"";position:absolute;inset:-10px;border-radius:50%;background:radial-gradient(closest-side,rgba(88,101,242,.22),rgba(0,0,0,0) 70%);filter:blur(14px);z-index:0;pointer-events:none}
-.avatarWrap::before{
-  content:"";
-  position:absolute;
-  inset:-8px;
-  border-radius:50%;
-  z-index:1;
-  pointer-events:none;
 
-  --ring: 6px;
-  --feather: .8px; /* bei Bedarf auf 1.2px–1.5px erhöhen */
+    /* Avatar-Ring — nahtlos & glatt */
+    .avatarWrap::before{
+      content:"";
+      position:absolute;
+      inset:-8px;
+      border-radius:50%;
+      z-index:1;
+      pointer-events:none;
 
-  background: conic-gradient(from 0turn at 50% 50%,
-    var(--cyan) 0deg,
-    var(--accent) 180deg,
-    var(--cyan) 360deg);
+      --ring: 6px;
+      --feather: .8px; /* bei Bedarf auf 1.2px–1.5px erhöhen */
 
-  /* Sauberer Innenausschnitt mit weicher (subpixel) Kante */
-  -webkit-mask: radial-gradient(closest-side,
-      transparent calc(100% - var(--ring) - var(--feather)),
-      rgba(0,0,0,.6) calc(100% - var(--ring) - var(--feather)/2),
-      #000 calc(100% - var(--ring))
-  );
-          mask: radial-gradient(closest-side,
-      transparent calc(100% - var(--ring) - var(--feather)),
-      rgba(0,0,0,.6) calc(100% - var(--ring) - var(--feather)/2),
-      #000 calc(100% - var(--ring))
-  );
+      background: conic-gradient(from 0turn at 50% 50%,
+        var(--cyan) 0deg,
+        var(--accent) 180deg,
+        var(--cyan) 360deg);
 
-  /* dezenter Glow, weniger “körnig” */
-  filter:
-    drop-shadow(0 0 12px rgba(0,229,255,.22))
-    drop-shadow(0 0 16px rgba(88,101,242,.22));
+      /* Sauberer Innenausschnitt mit weicher (subpixel) Kante */
+      -webkit-mask: radial-gradient(closest-side,
+          transparent calc(100% - var(--ring) - var(--feather)),
+          rgba(0,0,0,.6) calc(100% - var(--ring) - var(--feather)/2),
+          #000 calc(100% - var(--ring))
+      );
+              mask: radial-gradient(closest-side,
+          transparent calc(100% - var(--ring) - var(--feather)),
+          rgba(0,0,0,.6) calc(100% - var(--ring) - var(--feather)/2),
+          #000 calc(100% - var(--ring))
+      );
 
-  animation: ring-spin 12s linear infinite, ring-hue 8s linear infinite;
-  backface-visibility:hidden; transform:translateZ(0);
-  will-change: transform, filter;
-}
+      /* dezenter Glow, weniger “körnig” */
+      filter:
+        drop-shadow(0 0 12px rgba(0,229,255,.22))
+        drop-shadow(0 0 16px rgba(88,101,242,.22));
+
+      animation: ring-spin 12s linear infinite, ring-hue 8s linear infinite;
+      backface-visibility:hidden; transform:translateZ(0);
+      will-change: transform, filter;
+    }
     @keyframes ring-spin{to{transform:rotate(360deg)}}
     @keyframes ring-hue{
       0%{filter:hue-rotate(0deg) drop-shadow(0 0 14px rgba(0,229,255,.25)) drop-shadow(0 0 18px rgba(88,101,242,.25))}
       100%{filter:hue-rotate(360deg) drop-shadow(0 0 14px rgba(0,229,255,.25)) drop-shadow(0 0 18px rgba(88,101,242,.25))}
     }
+
     h1{margin:8px 0 6px;font-size:clamp(26px,5vw,34px)}
     .tag{color:var(--muted);margin-bottom:22px;font-size:15px}
     .links{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:20px 0 10px}
@@ -144,53 +147,96 @@
     #zG:active{transform:scale(.98)}
     #zM{margin-top:8px;font-size:13px;color:#ff6166;min-height:1.1em}
 
-/* === Audio-reactive edge glows (top/right/bottom/left) === */
-:root{
-  --eg-top-o:0; --eg-right-o:0; --eg-bottom-o:0; --eg-left-o:0;
-  --eg-top-s:1; --eg-right-s:1; --eg-bottom-s:1; --eg-left-s:1;
-}
-.edgeGlow{
-  position:fixed; z-index:0; pointer-events:none; mix-blend-mode:screen;
-  /* was 50px -> tighter = brighter */
-  filter:blur(40px);
-}
-/* Top: treble */
-#egTop{
-  left:-8vw; right:-8vw; top:-22vmin; height:36vmin;
-  opacity:var(--eg-top-o); transform:scaleY(var(--eg-top-s));
-  background:linear-gradient(to bottom,
-    rgba(0,229,255,.30) 0%,
-    rgba(88,101,242,.27) 45%,
-    rgba(88,101,242,0) 75%);
-}
-/* Bottom: bass */
-#egBottom{
-  left:-8vw; right:-8vw; bottom:-22vmin; height:36vmin;
-  opacity:var(--eg-bottom-o); transform:scaleY(var(--eg-bottom-s));
-  background:linear-gradient(to top,
-    rgba(0,229,255,.30) 0%,
-    rgba(88,101,242,.27) 45%,
-    rgba(88,101,242,0) 75%);
-}
-/* Left: mids */
-#egLeft{
-  top:-12vh; bottom:-12vh; left:-22vmin; width:36vmin;
-  opacity:var(--eg-left-o); transform:scaleX(var(--eg-left-s));
-  background:linear-gradient(to right,
-    rgba(0,229,255,.30) 0%,
-    rgba(88,101,242,.27) 45%,
-    rgba(88,101,242,0) 75%);
-}
-/* Right: mids */
-#egRight{
-  top:-12vh; bottom:-12vh; right:-22vmin; width:36vmin;
-  opacity:var(--eg-right-o); transform:scaleX(var(--eg-right-s));
-  background:linear-gradient(to left,
-    rgba(0,229,255,.30) 0%,
-    rgba(88,101,242,.27) 45%,
-    rgba(88,101,242,0) 75%);
-}
+    /* === Audio-reactive edge glows (top/right/bottom/left) === */
+    :root{
+      --eg-top-o:0; --eg-right-o:0; --eg-bottom-o:0; --eg-left-o:0;
+      --eg-top-s:1; --eg-right-s:1; --eg-bottom-s:1; --eg-left-s:1;
+    }
+    .edgeGlow{
+      position:fixed; z-index:0; pointer-events:none; mix-blend-mode:screen;
+      filter:blur(40px);
+    }
+    #egTop{
+      left:-8vw; right:-8vw; top:-22vmin; height:36vmin;
+      opacity:var(--eg-top-o); transform:scaleY(var(--eg-top-s));
+      background:linear-gradient(to bottom,
+        rgba(0,229,255,.30) 0%,
+        rgba(88,101,242,.27) 45%,
+        rgba(88,101,242,0) 75%);
+    }
+    #egBottom{
+      left:-8vw; right:-8vw; bottom:-22vmin; height:36vmin;
+      opacity:var(--eg-bottom-o); transform:scaleY(var(--eg-bottom-s));
+      background:linear-gradient(to top,
+        rgba(0,229,255,.30) 0%,
+        rgba(88,101,242,.27) 45%,
+        rgba(88,101,242,0) 75%);
+    }
+    #egLeft{
+      top:-12vh; bottom:-12vh; left:-22vmin; width:36vmin;
+      opacity:var(--eg-left-o); transform:scaleX(var(--eg-left-s));
+      background:linear-gradient(to right,
+        rgba(0,229,255,.30) 0%,
+        rgba(88,101,242,.27) 45%,
+        rgba(88,101,242,0) 75%);
+    }
+    #egRight{
+      top:-12vh; bottom:-12vh; right:-22vmin; width:36vmin;
+      opacity:var(--eg-right-o); transform:scaleX(var(--eg-right-s));
+      background:linear-gradient(to left,
+        rgba(0,229,255,.30) 0%,
+        rgba(88,101,242,.27) 45%,
+        rgba(88,101,242,0) 75%);
+    }
 
+    /* ===== MOTD (left bubble) ===== */
+    #motdWrap{
+      position:fixed; left:18px; top:50%; transform:translateY(-50%) translateZ(0);
+      width:min(28ch, 320px); z-index:2;
+      display:flex; gap:8px; align-items:flex-start;
+      pointer-events:none;
+      opacity:0; animation: motd-in 600ms cubic-bezier(.2,.8,.2,1) forwards 420ms;
+    }
+    @media (max-width: 980px){
+      #motdWrap{ position:static; transform:none; width:100%; margin:0 0 14px; padding:0 8px; opacity:1; }
+      .wrap{ padding-top:20px }
+    }
+    .motdBadge{
+      pointer-events:auto;
+      display:flex; flex-direction:column; gap:6px;
+      padding:12px 14px; border-radius:14px;
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid rgba(255,255,255,.10);
+      backdrop-filter: blur(8px);
+      box-shadow:0 10px 26px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.02);
+      position:relative; overflow:hidden;
+    }
+    .motdBadge::before{
+      content:""; position:absolute; inset:-2px; border-radius:16px;
+      background:conic-gradient(from 0turn, var(--cyan), var(--accent), var(--cyan));
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+              mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor; mask-composite: exclude;
+      padding:1px; filter:blur(.3px); opacity:.55;
+      animation: motd-hue 8s linear infinite;
+    }
+    .motdTitle{
+      font-weight:700; font-size:13px; letter-spacing:.08em;
+      text-transform:uppercase; color:var(--muted);
+    }
+    #motdText{
+      font-size:14.5px; line-height:1.45; color:var(--fg);
+      min-height:1.5em;
+    }
+    .motdBadge::after{
+      content:""; position:absolute; right:-20px; top:-20px; width:80px; height:80px; border-radius:50%;
+      background: radial-gradient(circle at 50% 50%, rgba(0,229,255,.22), rgba(88,101,242,.12) 45%, transparent 70%);
+      mix-blend-mode:screen; filter:blur(10px);
+      animation: motd-pulse 3.6s ease-in-out infinite;
+    }
+    @keyframes motd-hue{ to{ filter:hue-rotate(360deg)}}
+    @keyframes motd-in{ from{ transform:translateY(calc(-50% + 8px)); opacity:0 } to{ transform:translateY(-50%); opacity:1 } }
+    @keyframes motd-pulse{ 0%,100%{ transform:scale(1); opacity:.70 } 50%{ transform:scale(1.12); opacity:.95 } }
   </style>
 </head>
 <body>
@@ -209,6 +255,14 @@
       <div id="gateHint" class="hint">Press <b>Enter</b> or <b>Space</b></div>
     </div>
   </div>
+
+  <!-- MOTD (Message of the Day) -->
+  <aside id="motdWrap" aria-live="polite">
+    <div class="motdBadge">
+      <div class="motdTitle">MOTD</div>
+      <div id="motdText">…</div>
+    </div>
+  </aside>
 
   <main class="wrap">
     <section id="card" class="card blurred">
@@ -280,6 +334,7 @@
   const moodTitleEl = document.getElementById('moodTitle')
   const moodScaleHint = document.getElementById('moodScaleHint')
   const langBtn = document.getElementById('langBtn')
+  const motdText = document.getElementById('motdText')
 
   const root = document.documentElement
   let oTop=0,oRight=0,oBottom=0,oLeft=0, sTop=1,sRight=1,sBottom=1,sLeft=1
@@ -476,7 +531,19 @@
   document.addEventListener('pointerleave',()=> glow.style.opacity=0)
   ;(function follow(){ gx+=(tx-gx)*0.15; gy+=(ty-gy)*0.15; glow.style.transform=`translate3d(${gx}px,${gy}px,0)`; requestAnimationFrame(follow) })()
 
-  // Stimmung
+  // Helper: Typewriter-Reveal für MOTD
+  function typeReveal(el, text){
+    el.textContent = "";
+    let i=0;
+    const step = () => {
+      i += Math.max(1, Math.round(text.length/200));
+      el.textContent = text.slice(0, i);
+      if(i < text.length) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+
+  // Stimmung + MOTD
   const clamp=(v,min,max)=>Math.max(min,Math.min(max,v))
   const moodToEmoji=v=>{ if(v<=10)return'💀'; if(v<=25)return'😭'; if(v<=40)return'🙁'; if(v<=60)return'😐'; if(v<=80)return'🙂'; if(v<=95)return'😄'; return'🤩' }
   function setMood(v){
@@ -498,13 +565,22 @@
           moodRange.setAttribute('aria-disabled','true')
           moodLock.classList.add('show')
         }
+        // === MOTD ===
+        const motd = (cfg.motd || "").toString().trim()
+        if (motd && motdText){
+          typeReveal(motdText, motd)
+        } else if (motdText){
+          motdText.textContent = "Welcome ✨"
+        }
       }else{
         const fallback=+localStorage.getItem('kamyllan_mood')||70
         setMood(fallback)
+        if (motdText) motdText.textContent = "Welcome ✨"
       }
     }catch(_){
       const fallback=+localStorage.getItem('kamyllan_mood')||70
       setMood(fallback)
+      if (motdText) motdText.textContent = "Welcome ✨"
     }
   }
   loadConfigAndInit()
@@ -583,9 +659,9 @@
             else{ ZM.style.color='#ff6166'; ZM.textContent='Falscher Code'; ZG.disabled=false; ZI.disabled=false; ZI.focus(); } })
           .catch(function(){ ZM.style.color='#ff6166'; ZM.textContent='Fehler'; ZG.disabled=false; ZI.disabled=false; });
         };
-if (Z0) {
-  Z0.addEventListener('click', function(){ ZP.classList.contains('show') ? C() : O(); });
-}
+    if (Z0) {
+      Z0.addEventListener('click', function(){ ZP.classList.contains('show') ? C() : O(); });
+    }
 
     ZB.addEventListener('click', C);
     d.addEventListener('keydown', function(e){ if(e.key==='Escape') C(); });

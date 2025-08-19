@@ -1,4 +1,5 @@
 {
   "mood": 88,
-  "lockMood": true
+  "lockMood": true,
+  "motd": "Mein MOTD hier"
 }
