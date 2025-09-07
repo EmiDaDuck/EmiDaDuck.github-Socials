@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Stratagem Hero – Practice</title>
+<style>
+  :root{
+    --bg:#0b0e14;--card:#121623;--muted:#8b93a7;--text:#e6e9f2;--acc:#7dd3fc;--good:#22c55e;--bad:#ef4444;--warn:#f59e0b;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;background:linear-gradient(180deg,#0b0e14,#0b0e14 60%,#0e1220);color:var(--text);font:16px/1.45 system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;}
+  .wrap{max-width:980px;margin:32px auto;padding:0 16px}
+  .title{font-size:28px;font-weight:800;letter-spacing:.3px;display:flex;align-items:center;gap:10px}
+  .subtitle{color:var(--muted);margin-top:4px}
+  .card{background:var(--card);border:1px solid #1c2438;border-radius:16px;box-shadow:0 10px 25px rgba(0,0,0,.35);padding:18px}
+  .grid{display:grid;gap:16px}
+  @media(min-width:860px){.grid{grid-template-columns:2fr 1fr}}
+  button{appearance:none;border:1px solid #2a3552;background:#182033;color:var(--text);padding:10px 14px;border-radius:12px;cursor:pointer;font-weight:700}
+  button:hover{background:#1b2740}
+  button.primary{background:linear-gradient(180deg,#1a7dd8,#115db3);border-color:#0f4b90}
+  button.primary:hover{filter:brightness(1.05)}
+  .toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+  .pill{background:#101626;border:1px solid #2a3552;border-radius:999px;padding:8px 12px;display:inline-flex;gap:8px;align-items:center}
+  .label{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.12em}
+  .value{font-weight:800}
+  .big{font-size:44px;font-weight:900;letter-spacing:.02em}
+  .name{font-size:20px;font-weight:800}
+  .seq{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  .arrow{font-size:28px;line-height:1;border:1px solid #2a3552;border-radius:10px;padding:8px 10px;min-width:46px;text-align:center;opacity:.9}
+  .arrow.done{background:#132818;border-color:#1f4d2a;color:#b8ffcc}
+  .arrow.next{outline:2px solid var(--acc);box-shadow:0 0 0 4px rgba(125,211,252,.12)}
+  .arrow.bad{background:#2a1214;border-color:#5a1c20;color:#ffc0c7}
+  .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+  .muted{color:var(--muted)}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
+  .kbd{border:1px solid #2a3552;background:#0f1426;padding:4px 8px;border-radius:6px;font-weight:700}
+  .shake{animation:shake .15s 2}
+  @keyframes shake{0%{transform:translateX(0)}25%{transform:translateX(-5px)}50%{transform:translateX(5px)}75%{transform:translateX(-3px)}100%{transform:translateX(0)}}
+  .footer{margin-top:18px;color:var(--muted);font-size:12px}
+  .select{background:#101626;color:var(--text);border:1px solid #2a3552;border-radius:10px;padding:8px}
+  .list{max-height:280px;overflow:auto;border:1px solid #2a3552;border-radius:12px}
+  .list table{width:100%;border-collapse:collapse}
+  .list th,.list td{padding:10px 12px;border-bottom:1px solid #1b2440}
+  .chip{padding:4px 8px;border-radius:999px;font-size:12px;border:1px solid #2a3552;background:#0f1426}
+  .good{color:#afffb9}
+  .bad{color:#ffc0c7}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="title">🛡️ Stratagem Hero — Practice<span class="chip">No assets from Arrowhead; original clone</span></div>
+    <div class="subtitle">Practice Helldivers-style stratagem inputs (Arrow Keys or WASD). Randomized rounds, live accuracy, streaks, and per-strat timings.</div>
+
+    <div class="grid" style="margin-top:18px">
+      <div class="card" id="play">
+        <div class="toolbar" style="justify-content:space-between">
+          <div class="row">
+            <button id="start" class="primary">Start</button>
+            <button id="next">Next</button>
+            <button id="reset">Reset Stats</button>
+          </div>
+          <div class="row">
+            <span class="pill"><span class="label">Mode</span>
+              <select id="mode" class="select">
+                <option value="classic">Classic (random)</option>
+                <option value="endless">Endless</option>
+              </select>
+            </span>
+            <span class="pill"><span class="label">Include</span>
+              <select id="filter" class="select">
+                <option value="all">All</option>
+                <option value="mission">Mission</option>
+                <option value="defensive">Defensive</option>
+                <option value="offensive">Offensive</option>
+                <option value="supply">Supply</option>
+                <option value="launchers">Launchers</option>
+                <option value="throwers">Throwers</option>
+                <option value="guarddogs">Guard Dogs</option>
+              </select>
+            </span>
+          </div>
+        </div>
+
+        <div style="margin-top:14px"></div>
+        <div class="card" style="background:#0f1426;border-radius:14px">
+          <div class="row" style="justify-content:space-between;align-items:flex-end">
+            <div>
+              <div class="label">Current Stratagem</div>
+              <div id="name" class="name">—</div>
+            </div>
+            <div class="row">
+              <div class="pill"><span class="label">Time</span> <span class="value mono" id="time">0.00s</span></div>
+              <div class="pill"><span class="label">Best</span> <span class="value mono" id="best">—</span></div>
+              <div class="pill"><span class="label">Streak</span> <span class="value" id="streak">0</span></div>
+            </div>
+          </div>
+          <div class="seq" id="seq" style="margin-top:10px"></div>
+          <div class="muted" style="margin-top:10px">Controls: <span class="kbd">↑</span><span class="kbd">↓</span><span class="kbd">←</span><span class="kbd">→</span> or <span class="kbd">W</span><span class="kbd">S</span><span class="kbd">A</span><span class="kbd">D</span></div>
+        </div>
+
+        <div class="footer">Tip: Hit <b>Next</b> to skip. In Endless mode, a new stratagem auto-loads when you finish one.</div>
+      </div>
+
+      <div class="card" id="stats">
+        <div class="label">Session Stats</div>
+        <div class="row" style="margin-top:6px;gap:16px">
+          <div class="pill"><span class="label">Accuracy</span> <span class="value mono" id="acc">100%</span></div>
+          <div class="pill"><span class="label">Inputs</span> <span class="value mono" id="inputs">0</span></div>
+          <div class="pill"><span class="label">Mistakes</span> <span class="value mono bad" id="miss">0</span></div>
+          <div class="pill"><span class="label">Avg Time</span> <span class="value mono" id="avg">—</span></div>
+        </div>
+        <div class="list" style="margin-top:12px">
+          <table>
+            <thead><tr><th align="left">Stratagem</th><th align="left">Seq</th><th align="right">Time</th></tr></thead>
+            <tbody id="hist"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+// ======== Data ========
+const CATS = {
+  mission: 'mission', defensive: 'defensive', offensive: 'offensive', supply: 'supply',
+  launchers: 'launchers', throwers: 'throwers', guarddogs: 'guarddogs'
+};
+
+const STRATS = [
+  {name:'Reinforce', cat:CATS.mission, seq:'Up,Down,Right,Left,Up'},
+  {name:'Resupply', cat:CATS.mission, seq:'Down,Down,Up,Right'},
+  {name:'Orbital Precision Strike', cat:CATS.offensive, seq:'Right,Right,Up'},
+  {name:'Orbital 120mm HE Barrage', cat:CATS.offensive, seq:'Right,Right,Down,Left,Right,Down'},
+  {name:'Eagle Airstrike', cat:CATS.offensive, seq:'Up,Right,Down,Right'},
+  {name:'Machine Gun', cat:CATS.supply, seq:'Down,Left,Down,Up,Right'},
+  {name:'Recoilless Rifle', cat:CATS.supply, seq:'Down,Left,Right,Right,Left'},
+  {name:'Railgun', cat:CATS.supply, seq:'Down,Right,Left,Down,Up,Left,Right'},
+  {name:'Incendiary Mines', cat:CATS.defensive, seq:'Down,Left,Left,Down'},
+  {name:'Speargun', cat:CATS.throwers, seq:'Down,Right,Left,Left,Right,Right'},
+  {name:'De-Escalator', cat:CATS.launchers, seq:'Down,Right,Up,Down,Up,Left'},
+  {name:'"Guard Dog" K-9', cat:CATS.guarddogs, seq:'Down,Up,Down,Up,Left,Right,Left'},
+  {name:'Expendable Napalm', cat:CATS.launchers, seq:'Down,Down,Left,Right,Up'},
+];
+
+const ICON = {Up:'\u2191', Down:'\u2193', Left:'\u2190', Right:'\u2192'};
+
+const KEY_TO_DIR = {
+  ArrowUp:'Up', ArrowDown:'Down', ArrowLeft:'Left', ArrowRight:'Right',
+  w:'Up', W:'Up', s:'Down', S:'Down', a:'Left', A:'Left', d:'Right', D:'Right'
+};
+
+let current = null;
+let ptr = 0;
+let running = false;
+let startTime = 0;
+let streak = 0;
+let inputs = 0;
+let mistakes = 0;
+let times = [];
+
+// === Audio ===
+const clickAudio = new Audio("Click.mp3");
+clickAudio.volume = 1.0; // 100%
+
+const tracks = ["bSFX.mp3", "bSFX2.mp3"];
+let currentTrackIndex = 0;
+let bgAudio = new Audio(tracks[currentTrackIndex]);
+bgAudio.volume = 1.0;
+bgAudio.loop = false;
+
+bgAudio.addEventListener("ended", () => {
+  currentTrackIndex = (currentTrackIndex + 1) % tracks.length;
+  bgAudio.src = tracks[currentTrackIndex];
+  bgAudio.play();
+});
+
+function playClick(){
+  try{ clickAudio.currentTime = 0; clickAudio.play(); }catch(e){}
+}
+
+
+// Start background when user presses Start (required by browser autoplay policies)
+const startBtn = document.getElementById("start");
+startBtn.addEventListener("click", () => {
+  if (bgAudio.paused) {
+    bgAudio.play().catch(()=>{});
+  }
+});
+
+function playClick(){
+  try{ clickAudio.currentTime = 0; clickAudio.play(); }catch(e){}
+}
+
+// ===== Functions =====
+function sample(list){return list[Math.floor(Math.random()*list.length)];}
+function fmtTime(ms){return (ms/1000).toFixed(2)+'s';}
+function mean(arr){return arr.length? (arr.reduce((a,b)=>a+b,0)/arr.length):0}
+
+function filtered(){
+  const f = document.getElementById('filter').value;
+  if (f==='all') return STRATS;
+  return STRATS.filter(x=>x.cat===f);
+}
+
+function renderSeq(){
+  const box = document.getElementById('seq');
+  box.innerHTML = '';
+  current.seqArr.forEach((d,i)=>{
+    const el = document.createElement('div');
+    el.className = 'arrow'+(i<ptr?' done':'')+(i===ptr?' next':'');
+    el.textContent = ICON[d] || d;
+    box.appendChild(el);
+  });
+}
+
+function setStrat(item){
+  current = {name:item.name, cat:item.cat, seqArr:item.seq.split(',').map(s=>s.trim())};
+  ptr = 0; startTime = performance.now(); running = true;
+  document.getElementById('name').textContent = current.name;
+  renderSeq();
+  document.getElementById('time').textContent = '0.00s';
+}
+
+function nextStrat(){
+  const list = filtered();
+  setStrat(sample(list));
+}
+
+function complete(){
+  const t = performance.now() - startTime;
+  times.push(t);
+  streak++;
+  document.getElementById('streak').textContent = String(streak);
+  document.getElementById('time').textContent = fmtTime(t);
+  document.getElementById('avg').textContent = times.length? fmtTime(mean(times)) : '—';
+  const k = 'best:'+current.name;
+  const bestPrev = +localStorage.getItem(k) || Infinity;
+  if (t < bestPrev){ localStorage.setItem(k, String(t)); }
+  document.getElementById('best').textContent = isFinite(bestPrev)? fmtTime(Math.min(bestPrev,t)) : fmtTime(t);
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td>${current.name}</td><td class="mono">${current.seqArr.map(d=>ICON[d]).join(' ')}</td><td align="right" class="mono">${fmtTime(t)}</td>`;
+  document.getElementById('hist').prepend(tr);
+  if (document.getElementById('mode').value==='endless') nextStrat();
+  else running = false;
+}
+
+function fail(){
+  mistakes++;
+  document.getElementById('miss').textContent = String(mistakes);
+
+  // Shake + red effect
+  const box = document.getElementById('seq');
+  box.classList.remove('shake'); void box.offsetWidth; box.classList.add('shake');
+  const child = box.children[ptr]; if (child) child.classList.add('bad');
+
+  // Reset stratagem input
+  ptr = 0;
+  renderSeq();
+}
+
+
+function handle(dir){
+  if (!running || !current) return;
+  playClick(); // click on every input
+  inputs++; document.getElementById('inputs').textContent = String(inputs);
+  const acc = 100 * (inputs - mistakes) / Math.max(1, inputs);
+  document.getElementById('acc').textContent = acc.toFixed(0)+'%';
+  if (dir === current.seqArr[ptr]){
+    ptr++; renderSeq();
+    if (ptr >= current.seqArr.length) complete();
+  } else { fail(); }
+}
+
+// Timer update
+setInterval(()=>{
+  if (running && startTime){
+    const t = performance.now() - startTime;
+    document.getElementById('time').textContent = fmtTime(t);
+    const bestPrev = +localStorage.getItem('best:'+(current?.name||'')) || NaN;
+    document.getElementById('best').textContent = isFinite(bestPrev)? fmtTime(bestPrev) : '—';
+  }
+}, 50);
+
+// Controls
+addEventListener('keydown', (e)=>{
+  const d = KEY_TO_DIR[e.key];
+  if (d){ e.preventDefault(); handle(d); }
+});
+
+document.getElementById('start').onclick = ()=>{
+  streak=0;times=[];inputs=0;mistakes=0;updateStatsUI();
+  nextStrat();
+
+  // start music when game really starts
+  if (bgAudio.paused) {
+    bgAudio.play().catch(()=>{});
+  }
+}
+
+
+document.getElementById('next').onclick = ()=>{ nextStrat(); }
+
+document.getElementById('reset').onclick = ()=>{
+  streak=0;times=[];inputs=0;mistakes=0;updateStatsUI();document.getElementById('hist').innerHTML='';
+}
+
+document.getElementById('filter').onchange = ()=>{ if (!running) { /* idle */ } }
+
+function updateStatsUI(){
+  document.getElementById('streak').textContent = '0';
+  document.getElementById('acc').textContent = '100%';
+  document.getElementById('inputs').textContent = '0';
+  document.getElementById('miss').textContent = '0';
+  document.getElementById('time').textContent = '0.00s';
+  document.getElementById('best').textContent = '—';
+  document.getElementById('avg').textContent = '—';
+  document.getElementById('name').textContent = '—';
+  document.getElementById('seq').innerHTML = '';
+}
+
+// Init
+updateStatsUI();
+</script>
+</body>
+</html>
