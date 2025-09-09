@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Emoji Encoder – Steganography with Unicode Variation Selectors</title>
+  <style>
+    :root {
+      --bg: #0b1020; --panel: #121a35; --muted: #9db0ff; --text: #eaf0ff; --accent: #7aa2ff; --accent2: #b388ff;
+      --border: #20305f;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; font: 15px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      color: var(--text); background: radial-gradient(1000px 800px at 10% 0%, #10183a, var(--bg));
+    }
+    header { padding: 24px 20px; border-bottom: 1px solid var(--border); background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0)); }
+    h1 { margin: 0; font-size: 20px; }
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 18px; }
+    .grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+    @media (min-width: 900px) { .grid { grid-template-columns: 1fr 1fr; } }
+    .card { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.25); }
+    .card h2 { margin: 0 0 10px; font-size: 16px; }
+    label { display: block; font-size: 12px; color: var(--muted); margin: 10px 0 6px; }
+    textarea, input[type="text"] { width: 100%; background: #0e1530; color: var(--text); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; font: inherit; resize: vertical; }
+    textarea { min-height: 140px; }
+    .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .btn {
+      appearance: none; border: 1px solid var(--border); background: linear-gradient(180deg, #1b2855, #15204a);
+      color: var(--text); padding: 10px 14px; border-radius: 10px; cursor: pointer; font-weight: 600;
+    }
+    .btn:hover { filter: brightness(1.1); }
+    .btn:active { transform: translateY(1px); }
+    .muted { color: var(--muted); font-size: 12px; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
+    .pill { display: inline-block; padding: 2px 8px; border: 1px solid var(--border); border-radius: 999px; margin-left: 6px; font-size: 11px; color: var(--muted); }
+    .out { min-height: 120px; }
+    footer { color: var(--muted); font-size: 12px; text-align: center; padding: 18px; }
+    .warn { border-left: 3px solid #ffbf69; padding-left: 10px; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <h1>Emoji Encoder <span class="pill">Unicode Variation Selectors</span></h1>
+      <div class="muted">Hide text invisibly in a carrier emoji or character. Uses the 16 variation selectors U+FE00…U+FE0F to encode UTF‑8 bytes (two nibbles each).</div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="grid">
+      <section class="card">
+        <h2>Encode</h2>
+        <label for="carrier">Carrier character (emoji/letter)</label>
+        <div class="row">
+          <input id="carrier" type="text" value="🙂" maxlength="4" />
+          <button id="randomCarrier" class="btn" type="button">Random Emoji</button>
+        </div>
+
+        <label for="secret">Secret message</label>
+        <textarea id="secret" placeholder="Write your secret message here…"></textarea>
+
+        <div class="row" style="margin-top:10px;">
+          <button id="btnEncode" class="btn" type="button">Encode</button>
+          <button id="btnCopyOut" class="btn" type="button">Copy output</button>
+        </div>
+
+        <label for="output" style="margin-top:12px;">Encoded result</label>
+        <textarea id="output" class="out mono" spellcheck="false" placeholder="Your encoded string will appear here…"></textarea>
+        <div class="muted warn" style="margin-top:8px;">Note: Some apps normalize/remove variation selectors (e.g. certain word processors). They are most reliable in plain text fields or chat apps.</div>
+      </section>
+
+      <section class="card">
+        <h2>Decode</h2>
+        <label for="encoded">Input (encoded text)</label>
+        <textarea id="encoded" class="mono" spellcheck="false" placeholder="Paste the carrier character including hidden selectors here…"></textarea>
+
+        <div class="row" style="margin-top:10px;">
+          <button id="btnDecode" class="btn" type="button">Decode</button>
+          <button id="btnCopyMsg" class="btn" type="button">Copy message</button>
+        </div>
+
+        <label for="decoded" style="margin-top:12px;">Decoded message</label>
+        <textarea id="decoded" class="mono" spellcheck="false" placeholder="Your decoded message will appear here…"></textarea>
+        <div class="muted" style="margin-top:8px;">Tip: You can paste entire sentences – the decoder will just read all variation selectors found.</div>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    Demo only. No guarantee for data preservation across all environments.
+  </footer>
+
+  <script>
+    const VS = Array.from({ length: 16 }, (_, i) => String.fromCodePoint(0xFE00 + i));
+    const $ = (sel) => document.querySelector(sel);
+    const enc = new TextEncoder();
+    const dec = new TextDecoder();
+
+    function encodeMessage(message, carrier = "🙂") {
+      if (!carrier) carrier = "🙂";
+      const bytes = enc.encode(message);
+      let seq = "";
+      for (const b of bytes) {
+        seq += VS[b >> 4] + VS[b & 0x0f];
+      }
+      return carrier + seq;
+    }
+
+    function decodeMessage(text) {
+      const cps = Array.from(text);
+      if (cps.length === 0) return "";
+      let start = 1;
+      if (cps.length > 1 && cps[1].codePointAt(0) === 0xFE0F) {
+        start = 2;
+      }
+      const selectors = [];
+      for (let i = start; i < cps.length; i++) {
+        const cp = cps[i].codePointAt(0);
+        if (cp >= 0xFE00 && cp <= 0xFE0F) selectors.push(cp - 0xFE00);
+      }
+      if (selectors.length === 0) return "";
+      if (selectors.length % 2 !== 0) {
+        selectors.pop();
+        if (selectors.length % 2 !== 0) {
+          throw new Error("Invalid encoding: odd number of nibbles.");
+        }
+      }
+      const bytes = new Uint8Array(selectors.length / 2);
+      for (let i = 0; i < selectors.length; i += 2) {
+        bytes[i / 2] = (selectors[i] << 4) | selectors[i + 1];
+      }
+      return dec.decode(bytes);
+    }
+
+    $("#btnEncode").addEventListener("click", () => {
+      try {
+        const out = encodeMessage($("#secret").value || "", $("#carrier").value || "🙂");
+        $("#output").value = out;
+      } catch (e) {
+        alert("Encoding error: " + e.message);
+      }
+    });
+
+    $("#btnDecode").addEventListener("click", () => {
+      try {
+        const msg = decodeMessage($("#encoded").value || "");
+        $("#decoded").value = msg;
+      } catch (e) {
+        alert("Decoding error: " + e.message);
+      }
+    });
+
+    $("#btnCopyOut").addEventListener("click", () => navigator.clipboard.writeText($("#output").value || ""));
+    $("#btnCopyMsg").addEventListener("click", () => navigator.clipboard.writeText($("#decoded").value || ""));
+
+    const EMOJIS = ["🙂","😀","😎","🎯","✨","🧩","🔒","🛰️","🪄","🧠","🧪","🎲","🪙","🧭","🗝️","💠","📎","🖇️","📌","🔖","🔮","♟️","🧱","🪵","🎧","🎛️","🕹️"];
+    $("#randomCarrier").addEventListener("click", () => {
+      $("#carrier").value = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
+    });
+
+    $("#secret").focus();
+  </script>
+</body>
+</html>
