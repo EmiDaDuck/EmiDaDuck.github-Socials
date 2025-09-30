@@ -50,30 +50,17 @@
 .funnyTab .label{font-weight:700; letter-spacing:.02em}
 .funnyTab .hint{font-size:12px; color:var(--muted)}
 .funnyPanel{height:0; overflow:hidden; transition:height .35s ease}
-.funnyPanel.open{height:170px}
+.funnyPanel.open{height:260px} /* was 170px */
 .funnyStrip{position:relative; margin-top:10px; background:#0f141f; border:1px solid rgba(255,255,255,.06); border-radius:12px; padding:8px}
 .funnyRail{display:flex; gap:8px; overflow-x:auto; scroll-behavior:smooth; padding-bottom:6px}
 .funnyRail::-webkit-scrollbar{height:8px}
 .funnyRail::-webkit-scrollbar-thumb{background:#2a3242; border-radius:99px}
-/* Bigger Funny Pics items */
-.funnyItem {
-  flex: 0 0 auto;
-  width: 280px;   /* was 160px */
-  height: 200px;  /* was 120px */
-  border-radius: 14px;
-  overflow: hidden;
-  background: #111825;
-  position: relative;
-}
 
-.funnyItem img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  filter: brightness(.98);
-}
-.funnyItem .cap{position:absolute;left:6px;bottom:6px;right:6px;color:#fff;font-size:11px;text-shadow:0 1px 2px rgba(0,0,0,.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Bigger items */
+.funnyItem{flex:0 0 auto; width:280px; height:200px; border-radius:14px; overflow:hidden; background:#111825; position:relative}
+.funnyItem img{width:100%; height:100%; object-fit:cover; display:block; filter:brightness(.98)}
+.funnyItem .cap{position:absolute;left:6px;bottom:6px;right:6px;color:#fff;font-size:12px;text-shadow:0 1px 2px rgba(0,0,0,.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
 .funnyEmpty{font-size:14px;color:var(--muted); text-align:center; padding:16px}
 .funnyControls{display:flex; gap:8px; align-items:center}
 .funnyBtn{appearance:none;border:0;border-radius:10px;padding:8px 10px;background:#222734;color:var(--fg);cursor:pointer;transition:background .2s ease,transform .06s ease}
