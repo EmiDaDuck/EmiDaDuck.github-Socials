@@ -408,16 +408,51 @@ const funny = {
 }
 
 async function listImagesFromFolder(folder){
-  const exts=['jpg','jpeg','png','gif','webp']
+  const exts = ['jpg','jpeg','png','gif','webp'];
+
+  // 1) manifest.json
   try{
-    const r=await fetch(folder+'manifest.json?ts='+Date.now(),{cache:'no-store'})
+    const r = await fetch(folder + 'manifest.json?ts=' + Date.now(), {cache:'no-store'});
     if(r.ok){
-      const arr=await r.json()
-      return (arr||[]).map(x=>({src:folder+String(x), cap:String(x)}))
-        .filter(x=>exts.some(e=>x.src.toLowerCase().endsWith('.'+e)))
+      const arr = await r.json();
+      const items = (arr||[])
+        .map(x => ({ src: folder + String(x), cap: String(x) }))
+        .filter(x => exts.some(e => x.src.toLowerCase().endsWith('.'+e)));
+      if(items.length) return items;
     }
   }catch(_){}
-  return []
+
+  // 2) directory index (if your server lists folders)
+  try{
+    const r = await fetch(folder, {cache:'no-store'});
+    if(r.ok){
+      const html = await r.text();
+      const rx = /<a[^>]+href=["']([^"']+)["'][^>]*>/gi;
+      const out = [];
+      let m;
+      while((m = rx.exec(html))){
+        const href = m[1];
+        if(exts.some(e => href.toLowerCase().endsWith('.'+e))){
+          out.push({ src: folder + href, cap: href });
+        }
+      }
+      if(out.length) return out;
+    }
+  }catch(_){}
+
+  // 3) fallback: probe 1..50 with common extensions
+  const guesses = [];
+  for(let i=1;i<=50;i++){
+    for(const e of exts){ guesses.push({src:folder+i+'.'+e, cap:i+'.'+e}); }
+  }
+  const results = [];
+  await Promise.all(guesses.map(g => new Promise(res=>{
+    const img = new Image();
+    img.onload = () => res(results.push({src:g.src, cap:g.cap}));
+    img.onerror = () => res();
+    img.src = g.src;
+  })));
+  return results;
 }
 
 function renderFunny(items){
