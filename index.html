@@ -55,8 +55,24 @@
 .funnyRail{display:flex; gap:8px; overflow-x:auto; scroll-behavior:smooth; padding-bottom:6px}
 .funnyRail::-webkit-scrollbar{height:8px}
 .funnyRail::-webkit-scrollbar-thumb{background:#2a3242; border-radius:99px}
-.funnyItem{flex:0 0 auto; width:160px; height:120px; border-radius:10px; overflow:hidden; background:#111825; position:relative}
-.funnyItem img{width:100%; height:100%; object-fit:cover; display:block; filter:brightness(.98)}
+/* Bigger Funny Pics items */
+.funnyItem {
+  flex: 0 0 auto;
+  width: 280px;   /* was 160px */
+  height: 200px;  /* was 120px */
+  border-radius: 14px;
+  overflow: hidden;
+  background: #111825;
+  position: relative;
+}
+
+.funnyItem img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  filter: brightness(.98);
+}
 .funnyItem .cap{position:absolute;left:6px;bottom:6px;right:6px;color:#fff;font-size:11px;text-shadow:0 1px 2px rgba(0,0,0,.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .funnyEmpty{font-size:14px;color:var(--muted); text-align:center; padding:16px}
 .funnyControls{display:flex; gap:8px; align-items:center}
