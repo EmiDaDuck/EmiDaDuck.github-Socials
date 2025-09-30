@@ -41,6 +41,30 @@
     .avatar{position:relative;z-index:2;width:100%;height:100%;border-radius:50%;object-fit:cover;box-shadow:inset 0 0 26px rgba(0,229,255,.18),inset 0 0 36px rgba(88,101,242,.18),0 0 0 3px rgba(255,255,255,.04),0 0 40px rgba(88,101,242,.20)}
     .avatarWrap::after{content:"";position:absolute;inset:-10px;border-radius:50%;background:radial-gradient(closest-side,rgba(88,101,242,.22),rgba(0,0,0,0) 70%);filter:blur(14px);z-index:0;pointer-events:none}
 
+/* ===== Funny Pics (bottom tab + scroller) ===== */
+.funnyWrap{margin:18px auto 0; max-width:720px}
+.funnyTab{display:flex;align-items:center;justify-content:space-between;gap:10px; cursor:pointer; user-select:none;
+  background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+  border:1px solid rgba(255,255,255,.08); border-radius:12px; padding:10px 12px; color:var(--fg)}
+.funnyTab:hover{background:#1b2130}
+.funnyTab .label{font-weight:700; letter-spacing:.02em}
+.funnyTab .hint{font-size:12px; color:var(--muted)}
+.funnyPanel{height:0; overflow:hidden; transition:height .35s ease}
+.funnyPanel.open{height:170px}
+.funnyStrip{position:relative; margin-top:10px; background:#0f141f; border:1px solid rgba(255,255,255,.06); border-radius:12px; padding:8px}
+.funnyRail{display:flex; gap:8px; overflow-x:auto; scroll-behavior:smooth; padding-bottom:6px}
+.funnyRail::-webkit-scrollbar{height:8px}
+.funnyRail::-webkit-scrollbar-thumb{background:#2a3242; border-radius:99px}
+.funnyItem{flex:0 0 auto; width:160px; height:120px; border-radius:10px; overflow:hidden; background:#111825; position:relative}
+.funnyItem img{width:100%; height:100%; object-fit:cover; display:block; filter:brightness(.98)}
+.funnyItem .cap{position:absolute;left:6px;bottom:6px;right:6px;color:#fff;font-size:11px;text-shadow:0 1px 2px rgba(0,0,0,.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.funnyEmpty{font-size:14px;color:var(--muted); text-align:center; padding:16px}
+.funnyControls{display:flex; gap:8px; align-items:center}
+.funnyBtn{appearance:none;border:0;border-radius:10px;padding:8px 10px;background:#222734;color:var(--fg);cursor:pointer;transition:background .2s ease,transform .06s ease}
+.funnyBtn:hover{background:#283042}
+.funnyBtn:active{transform:scale(.98)}
+
+
     /* Avatar-Ring — nahtlos & glatt */
     .avatarWrap::before{
       content:"";
@@ -293,6 +317,30 @@
         <canvas id="viz" class="visualizer"></canvas>
       </div>
 
+<!-- === Funny Pics (bottom of main stuff) === -->
+<section class="funnyWrap" aria-labelledby="funnyLabel">
+  <div id="funnyTab" class="funnyTab" role="button" aria-controls="funnyPanel" aria-expanded="false">
+    <div>
+      <div id="funnyLabel" class="label">🤣 Funny Pics</div>
+      <div class="hint" id="funnyHint">Da Funni</code></div>
+    </div>
+    <div class="funnyControls">
+      <button id="funnyPrev" class="funnyBtn" title="Prev" aria-label="Previous">⟨</button>
+      <button id="funnyNext" class="funnyBtn" title="Next" aria-label="Next">⟩</button>
+    </div>
+  </div>
+  <div id="funnyPanel" class="funnyPanel" aria-hidden="true">
+    <div class="funnyStrip">
+      <div id="funnyRail" class="funnyRail" tabindex="0" aria-label="Funny pictures scroller"></div>
+      <div id="funnyEmpty" class="funnyEmpty" hidden>
+        No images found. Put some in <code>assets/funny/</code> (jpg, png, gif, webp).
+        Optionally create <code>manifest.json</code>.
+      </div>
+    </div>
+  </div>
+</section>
+
+
       <footer>© <span id="yr"></span> kamyllan</footer>
     </section>
   </main>
@@ -345,6 +393,79 @@
   title.textContent = "GiGi's song"
   audio.muted = false
   audio.volume = parseFloat(vol.value || '0.1')
+
+// ===== Funny Pics logic =====
+const funny = {
+  folder: 'assets/funny/',
+  rail: document.getElementById('funnyRail'),
+  empty: document.getElementById('funnyEmpty'),
+  panel: document.getElementById('funnyPanel'),
+  tab: document.getElementById('funnyTab'),
+  prev: document.getElementById('funnyPrev'),
+  next: document.getElementById('funnyNext'),
+  autoTimer: null,
+  speed: 0.35 // px per frame
+}
+
+async function listImagesFromFolder(folder){
+  const exts=['jpg','jpeg','png','gif','webp']
+  try{
+    const r=await fetch(folder+'manifest.json?ts='+Date.now(),{cache:'no-store'})
+    if(r.ok){
+      const arr=await r.json()
+      return (arr||[]).map(x=>({src:folder+String(x), cap:String(x)}))
+        .filter(x=>exts.some(e=>x.src.toLowerCase().endsWith('.'+e)))
+    }
+  }catch(_){}
+  return []
+}
+
+function renderFunny(items){
+  funny.rail.innerHTML=''
+  if(!items.length){ funny.empty.hidden=false; return }
+  funny.empty.hidden=true
+  for(const it of items){
+    const a=document.createElement('a'); a.href=it.src; a.target='_blank'; a.rel='noopener'
+    a.className='funnyItem'
+    const img=new Image(); img.loading='lazy'; img.decoding='async'; img.src=it.src; img.alt=it.cap
+    const cap=document.createElement('div'); cap.className='cap'; cap.textContent=it.cap
+    a.appendChild(img); a.appendChild(cap)
+    funny.rail.appendChild(a)
+  }
+}
+
+function startAutoScroll(){
+  stopAutoScroll()
+  const rail=funny.rail
+  let raf
+  const tick=()=>{
+    rail.scrollLeft += funny.speed
+    if(rail.scrollLeft >= (rail.scrollWidth - rail.clientWidth - 1)) rail.scrollLeft = 0
+    raf=requestAnimationFrame(tick)
+  }
+  raf=requestAnimationFrame(tick)
+  funny.autoTimer=()=>cancelAnimationFrame(raf)
+}
+function stopAutoScroll(){ if(funny.autoTimer){ funny.autoTimer(); funny.autoTimer=null } }
+
+funny.rail?.addEventListener('mouseenter', stopAutoScroll)
+funny.rail?.addEventListener('mouseleave', startAutoScroll)
+funny.prev?.addEventListener('click', ()=>{ funny.rail.scrollLeft -= Math.max(200, funny.rail.clientWidth*0.6) })
+funny.next?.addEventListener('click', ()=>{ funny.rail.scrollLeft += Math.max(200, funny.rail.clientWidth*0.6) })
+
+funny.tab?.addEventListener('click', ()=>{
+  const open=!funny.panel.classList.contains('open')
+  funny.panel.classList.toggle('open', open)
+  funny.tab.setAttribute('aria-expanded', String(open))
+  funny.panel.setAttribute('aria-hidden', String(!open))
+  if(open) startAutoScroll(); else stopAutoScroll()
+})
+
+;(async()=>{
+  try{ renderFunny(await listImagesFromFolder(funny.folder)) }
+  catch(_){ renderFunny([]) }
+})()
+
 
   const i18n = {
     en:{gateTitle:"Click to enter",gateHint:"Press <b>Enter</b> or <b>Space</b>",otherProfile:"Other Profile",npLabel:"Now playing:",moodTitle:"Mood Meter",locked:"Locked",scaleAria:"Mood from 0 to 100",scaleHint:"0 = worst • 100 = best",nubLabel:"Open mood meter",gateAria:"Click to enter and start music",langLabel:"EN",langTitle:"Change language"},
