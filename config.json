@@ -1,10 +1,6 @@
 {
   "mood": 100,
   "lockMood": true,
-  "motd": "Girls love the way i do it\nBoys cummin' to my music\nDon\u2019t need a man, but that\u2019s my toy\nYou bet i\u2019m gonna use it"
-}
-
-{
   "quotes": [
     { "text": "Meow meow motherf— wait... that's my brand.", "by": "GiGi" },
     { "text": "Dark mode isn’t a preference. It’s a lifestyle." },
@@ -13,4 +9,5 @@
   ],
   "quoteInterval": 8000,
   "quoteRandom": true
+  "motd": "Girls love the way i do it\nBoys cummin' to my music\nDon\u2019t need a man, but that\u2019s my toy\nYou bet i\u2019m gonna use it"
 }
