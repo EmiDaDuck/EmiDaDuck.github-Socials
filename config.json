@@ -2,10 +2,6 @@
   "mood": 100,
   "lockMood": true,
   "quotes": [
-    { "text": "Meow meow motherf— wait... that's my brand.", "by": "GiGi" },
-    { "text": "Dark mode isn’t a preference. It’s a lifestyle." },
-    { "text": "Build cool things. Touch grass occasionally.", "by": "Kamyllan" },
-    { "text": "Ship it. Iterate later." }
   ],
   "quoteInterval": 8000,
   "quoteRandom": true,
