@@ -261,7 +261,24 @@
     @keyframes motd-hue{ to{ filter:hue-rotate(360deg)}}
     @keyframes motd-in{ from{ transform:translateY(calc(-50% + 8px)); opacity:0 } to{ transform:translateY(-50%); opacity:1 } }
     @keyframes motd-pulse{ 0%,100%{ transform:scale(1); opacity:.70 } 50%{ transform:scale(1.12); opacity:.95 } }
-  </style>
+  
+/* ===== Quotes (rotating) ===== */
+.quoteWrap{margin:18px auto 0; max-width:720px}
+.quoteBadge{
+  display:flex; flex-direction:column; gap:10px;
+  padding:14px 16px; border-radius:14px;
+  background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+  border:1px solid rgba(255,255,255,.10);
+  backdrop-filter: blur(8px);
+  box-shadow:0 10px 26px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.02);
+}
+.quoteMark{font-size:18px; color:var(--muted)}
+#quoteText{font-size:16px; line-height:1.5}
+.quoteBy{font-size:13px; color:var(--muted)}
+.quoteControls{display:flex; gap:8px; align-items:center; margin-top:4px}
+#quoteWrap[hidden]{display:none}
+
+</style>
 </head>
 <body>
   <canvas id="bg" aria-hidden="true"></canvas>
@@ -336,6 +353,22 @@
         No images found. Put some in <code>assets/funny/</code> (jpg, png, gif, webp).
         Optionally create <code>manifest.json</code>.
       </div>
+    </div>
+  </div>
+</section>
+
+
+      
+<!-- === Quotes (rotating) === -->
+<section id="quoteWrap" class="quoteWrap" aria-live="polite" hidden>
+  <div class="quoteBadge">
+    <div class="quoteMark">“</div>
+    <div id="quoteText">…</div>
+    <div id="quoteBy" class="quoteBy"></div>
+    <div class="quoteControls">
+      <button id="quotePrev" class="iconbtn" title="Previous" aria-label="Previous">⟨</button>
+      <button id="quoteNext" class="iconbtn" title="Next" aria-label="Next">⟩</button>
+      <button id="quotePause" class="iconbtn" title="Pause/Play" aria-label="Pause or play">⏸</button>
     </div>
   </div>
 </section>
@@ -731,6 +764,8 @@ funny.tab?.addEventListener('click', ()=>{
         } else if (motdText){
           motdText.textContent = "Welcome ✨"
         }
+        window.__siteConfig = cfg;
+        if (typeof initQuotes === 'function') initQuotes(cfg);
       }else{
         const fallback=+localStorage.getItem('kamyllan_mood')||70
         setMood(fallback)
@@ -828,6 +863,87 @@ funny.tab?.addEventListener('click', ()=>{
     ZI.addEventListener('keydown', function(e){ if(e.key==='Enter') F(); });
   })(document);
   </script>
+
+
+<script>
+// === Quotes system (config-driven) ===
+(function(){
+  const qWrap = document.getElementById('quoteWrap');
+  const qText = document.getElementById('quoteText');
+  const qBy   = document.getElementById('quoteBy');
+  const qPrev = document.getElementById('quotePrev');
+  const qNext = document.getElementById('quoteNext');
+  const qPause= document.getElementById('quotePause');
+
+  let quotes = [];
+  let index = 0;
+  let timer = null;
+  let paused = false;
+  let interval = 8000;
+  let randomize = false;
+
+  function render(){
+    if(!quotes.length){ qWrap.hidden = true; return }
+    qWrap.hidden = false;
+    const q = quotes[index % quotes.length];
+    const text = (q && q.text) ? String(q.text) : String(q || '');
+    const by = (q && q.by) ? String(q.by) : '';
+    qText.textContent = text;
+    qBy.textContent = by ? ('— ' + by) : '';
+  }
+
+  function next(){
+    if(randomize){
+      if(quotes.length > 1){
+        let n;
+        do { n = Math.floor(Math.random()*quotes.length) } while(n === index);
+        index = n;
+      }
+    }else{
+      index = (index + 1) % quotes.length;
+    }
+    render();
+  }
+  function prev(){
+    index = (index - 1 + quotes.length) % quotes.length;
+    render();
+  }
+  function play(){
+    paused = false;
+    qPause.textContent = '⏸';
+    if(timer) clearInterval(timer);
+    timer = setInterval(next, interval);
+  }
+  function pause(){
+    paused = true;
+    qPause.textContent = '▶';
+    if(timer){ clearInterval(timer); timer = null; }
+  }
+  function toggle(){
+    paused ? play() : pause();
+  }
+
+  // exposed init for config loader
+  window.initQuotes = function(cfg){
+    try{
+      const arr = Array.isArray(cfg?.quotes) ? cfg.quotes : [];
+      quotes = arr.filter(Boolean);
+      interval = Math.max(2000, Number(cfg?.quoteInterval || 8000));
+      randomize = Boolean(cfg?.quoteRandom);
+      index = 0;
+      render();
+      if(quotes.length){
+        if(!paused){ play() }
+        qPrev?.addEventListener('click', prev);
+        qNext?.addEventListener('click', next);
+        qPause?.addEventListener('click', toggle);
+      }
+    }catch(_){
+      // fail silently
+    }
+  };
+})();
+</script>
 
 </body>
 </html>
