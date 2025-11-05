@@ -2,6 +2,10 @@
   "mood": 100,
   "lockMood": true,
   "quotes": [
+    {
+      "text": "\"Nose, shut the fuck up T-T\"",
+      "by": "GiGi"
+    }
   ],
   "quoteInterval": 8000,
   "quoteRandom": true,
