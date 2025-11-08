@@ -7,7 +7,7 @@
       "by": "GiGi"
     },
     {
-      "text": "\"If i had a dick i would've a boner...\"",
+      "text": "\"If i had a dick i would've a boner right now...\"",
       "by": "GiGi"
     },
     {
@@ -20,6 +20,6 @@
     }
   ],
   "quoteInterval": 8000,
-  "quoteRandom": true,
+  "quoteRandom": false,
   "motd": "Girls love the way i do it\nBoys cummin' to my music\nDon\u2019t need a man, but that\u2019s my toy\nYou bet i\u2019m gonna use it"
 }
