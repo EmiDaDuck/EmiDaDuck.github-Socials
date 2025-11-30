@@ -36,6 +36,6 @@
     }
   ],
   "quoteInterval": 8000,
-  "quoteRandom": false,
+  "quoteRandom": true,
   "motd": "COLOR is set to ZERO\nPRINT \"Cry\" and TRACE \"Sorrow\"\nFOR GIGI minus YOU\nType END\nWhat's a GAME with no pleasure ?\nLOOP until US equals TOGETHER\nIF HOME is what we earn\nTHEN GOTO ME and press RETURN"
 }
